@@ -1,0 +1,375 @@
+---
+title: "The Female Aggression Avoidance Hypothesis - Exploratory Analyses"
+author: Scott Claessens
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    toc_float: true
+---
+
+```{r, warning=F, message=F, echo=F}
+library(tidyverse)
+```
+
+We run exploratory analyses on the mating behaviour of agents. The data in the main and sensitivity analyses only capture reproductive success and paternal investment after the whole model run. They do not capture mating behaviour (number of mates, number of unique mates, and amount of mate switching). To remedy this, we ran further models and collected data on the following variables, for each agent: 
+
+* **Number of mates**: total number of mating instances (including repeat matings)
+* **Number of unique mates**: number of unique mates, out of 100 (there are only 100 of the opposite sex)
+* **Amount of mate switching**: number of times the agent mates with an individual who was not their previous mate
+
+First, we analysed only one simulation, under the conditions of Experiment 1 (No Aggression), to provide a proof of concept for the model. In this simulation, there were 100 males and 100 females, and it ran for 10,000 timesteps. The results are similar when the females are entirely Concealers or entirely Revealers, so we only report the results for Concealers both below.
+
+Next, we ran 60 more simulations (20 for each experimental condition) and compared the mating histories of Concealers and Revealers in each, to further understand *why* Concealers enjoyed greater reproductive success in Experiment 3.
+
+# 1. Proof of concept
+
+Load the data from the one proof-of-concept simulation. We start by looking at the simulation in which all females were Concealers.
+
+```{r}
+d <-
+  read.csv('data/ovulationExploratory_ProofConcealers.csv') %>%
+  as_tibble() %>%
+  rename(ID  = `ï..ID`) %>%
+  mutate(ID  = factor(ID),
+         Sex = factor(Sex))
+
+d
+```
+
+Let's visualise the number of mating instances for both sexes.
+
+```{r}
+p1 <- 
+  d %>%
+  ggplot(aes(x = num_matings, fill = Sex)) +
+  geom_histogram(binwidth = 500, alpha = .5, position = "identity") +
+  xlab("Number of matings") +
+  ylab("Count") +
+  scale_fill_manual(values = c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# ggsave('figures/Figure_numMatings.pdf', p1, width = 150, height = 150, units = 'mm')
+
+p1
+```
+
+This follows the pattern of Bateman's principle (high variation in mating for males, with most never mating at all). Is this effect driven by mate value?
+
+```{r}
+p2 <-
+  d %>%
+  ggplot(aes(x = mate_value, y = num_matings)) +
+  geom_point(aes(colour = Sex)) +
+  xlab("Mate value") +
+  ylab("Number of matings") +
+  scale_colour_manual(values=c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# ggsave('figures/Figure_mateValue.pdf', p2, width = 150, height = 150, units = 'mm')
+
+p2
+```
+
+```{r}
+# correlation for males
+cor.test(d[d$Sex == 'male',]$mate_value, d[d$Sex == 'male',]$num_matings)
+```
+
+```{r}
+# correlation for females
+cor.test(d[d$Sex == 'female',]$mate_value, d[d$Sex == 'female',]$num_matings)
+```
+
+It seems that higher mate-value males do most of the mating, while mate value has little effect for females.
+
+Is mate value associated with proportion of mate switching (promiscuity)?
+
+```{r warning=F, message=F}
+d <-
+  d %>%
+  mutate(prop_mate_switching = mate_switching / num_matings)
+
+p3 <-
+  d %>%
+  ggplot(aes(x = mate_value, y = prop_mate_switching)) +
+  geom_point(aes(colour = Sex)) +
+  xlab("Mate value") +
+  ylab("Proportion mate switching") +
+  ylim(0:1) +
+  scale_colour_manual(values=c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# ggsave('figures/Figure_propMateSwitch.pdf', p3, width = 150, height = 150, units = 'mm')
+
+p3
+```
+
+```{r}
+# correlation for males
+cor.test(d[d$Sex == 'male',]$mate_value, d[d$Sex == 'male',]$prop_mate_switching)
+```
+
+```{r}
+# correlation for females
+cor.test(d[d$Sex == 'female',]$mate_value, d[d$Sex == 'female',]$prop_mate_switching)
+```
+
+The same effects hold when females are all Revealers (code in .Rmd file, but not shown here).
+
+```{r echo=F, eval=F}
+# repeat when all females are Revealers
+
+# load data
+d <-
+  read.csv('data/ovulationExploratory_ProofRevealers.csv') %>%
+  as_tibble() %>%
+  rename(ID  = `ï..ID`) %>%
+  mutate(ID  = factor(ID),
+         Sex = factor(Sex))
+
+# number of matings, for both sexes
+d %>%
+  ggplot(aes(x = num_matings, fill = Sex)) +
+  geom_histogram(binwidth = 500, alpha = .5, position = "identity") +
+  xlab("Number of matings") +
+  ylab("Count") +
+  scale_fill_manual(values = c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# relationship between mate value and number of matings, for both sexes
+d %>%
+  ggplot(aes(x = mate_value, y = num_matings)) +
+  geom_point(aes(colour = Sex)) +
+  xlab("Mate value") +
+  ylab("Number of matings") +
+  scale_colour_manual(values=c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# correlation between mate value and number of matings, for males
+cor.test(d[d$Sex == 'male',]$mate_value, d[d$Sex == 'male',]$num_matings)
+
+# correlation between mate value and number of matings, for females
+cor.test(d[d$Sex == 'female',]$mate_value, d[d$Sex == 'female',]$num_matings)
+
+# calculate proportion of mate switching
+d <-
+  d %>%
+  mutate(prop_mate_switching = mate_switching / num_matings)
+
+# relationship between mate value and proportion of mate switching, for both sexes
+d %>%
+  ggplot(aes(x = mate_value, y = prop_mate_switching)) +
+  geom_point(aes(colour = Sex)) +
+  xlab("Mate value") +
+  ylab("Proportion mate switching") +
+  ylim(0:1) +
+  scale_colour_manual(values=c("#E69F00", "#009E73")) +
+  theme_minimal()
+
+# correlation between mate value and proportion of mate switching, for males
+cor.test(d[d$Sex == 'male',]$mate_value, d[d$Sex == 'male',]$prop_mate_switching)
+
+# correlation between mate value and proportion of mate switching, for females
+cor.test(d[d$Sex == 'female',]$mate_value, d[d$Sex == 'female',]$prop_mate_switching)
+
+```
+
+# 2. Mating Histories
+
+Load the data for the more comprehensive exploratory analysis.
+
+```{r}
+d <-
+  read.csv('data/ovulationExploratory_Mating.csv') %>%
+  as_tibble() %>%
+  mutate(ftype      = factor(ifelse(ftype == 0, "Concealers", "Revealers")),
+         Experiment = factor(Experiment),
+         Simulation = factor(Simulation))
+
+d
+```
+
+This dataset contains 12,000 rows (3 experiments x 20 simulations x 200 individuals). In these simulations, Revealers received no attractiveness decrement during their non-ovulatory periods, so Decrement was always FALSE.
+
+## 2.1. Number of matings
+
+First, let's plot number of matings for both strategies, in the three experiments.
+
+```{r warning=F, message=F}
+num_matings_Summary <- 
+  d %>%
+  group_by(Experiment, ftype) %>%
+  summarise(num_matings_mean = mean(num_matings),
+            num_matings_se   = sqrt(var(num_matings) / length(num_matings)))
+
+facet_labels <- c(
+    '1' = "No Aggression",
+    '2' = "Aggression towards\nhigher attractiveness",
+    '3' = "Aggression towards ovulating"
+  )
+
+p1 <- 
+  d %>%
+  mutate(ftype = fct_relevel(ftype, c('Revealers', 'Concealers'))) %>%
+  filter(Sex == 'female') %>%
+
+  ggplot(aes(x = ftype, y = num_matings, fill = ftype)) +
+  geom_violin(stat = "ydensity") +
+  geom_jitter(colour = "black", size = 0.6, width = 0.13, 
+              alpha = 0.04, show.legend = FALSE) +
+  geom_point(data = num_matings_Summary, aes(y = num_matings_mean), 
+             color = "black", size = 0.6, show.legend = FALSE) + 
+  geom_errorbar(data = num_matings_Summary, 
+                aes(y = num_matings_mean, ymin = num_matings_mean - num_matings_se, 
+                    ymax = num_matings_mean + num_matings_se),
+                color = "black", width = 0.3) +
+  facet_grid(. ~ Experiment, labeller = as_labeller(facet_labels)) +
+  ylab('Number of mating instances') +
+  scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.text.x  = element_blank(),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        legend.title = element_blank(),
+        legend.text  = element_text(margin = margin(r = 10, l = 2)),
+        legend.position = 'bottom',
+        legend.margin = margin(0,0,0,0),
+        panel.grid.minor = element_blank())
+
+# ggsave('figures/Figure_numMatingsExps.pdf', p1, width = 200, height = 110, units = 'mm')
+
+p1
+```
+
+It doesn't look the strategies differ in the amount of sex they are having, under any of the three conditions. Let's conduct an ANOVA to test this intuition.
+
+```{r}
+d.females <-
+  d %>%
+  filter(Sex == 'female')
+
+m1 <- aov(num_matings ~ Experiment*ftype + Error(Simulation/ftype), data = d.females)
+
+summary(m1)
+```
+
+The ANOVA confirms this. The only statistical significance comes from the main effect of condition. It looks like this is driven by the increased number of matings under conditions of Aggression Towards Higher Attractiveness (Experiment 2).
+
+## 2.2. Number of unique mates
+
+Create plot for this new dependent variable.
+
+```{r warning=F, message=F}
+num_unique_matings_Summary <- 
+  d %>%
+  group_by(Experiment, ftype) %>%
+  summarise(num_unique_matings_mean = mean(num_unique_mates),
+            num_unique_matings_se   = sqrt(var(num_unique_mates) / length(num_unique_mates)))
+
+p2 <- 
+  d %>%
+  mutate(ftype = fct_relevel(ftype, c('Revealers', 'Concealers'))) %>%
+  filter(Sex == 'female') %>%
+
+  ggplot(aes(x = ftype, y = num_unique_mates, fill = ftype)) +
+  geom_violin(stat = "ydensity") +
+  geom_jitter(colour = "black", size = 0.6, width = 0.13, 
+              alpha = 0.04, show.legend = FALSE) +
+  geom_point(data = num_unique_matings_Summary, aes(y = num_unique_matings_mean), 
+             color = "black", size = 0.6, show.legend = FALSE) + 
+  geom_errorbar(data = num_unique_matings_Summary, 
+                aes(y = num_unique_matings_mean, 
+                    ymin = num_unique_matings_mean - num_unique_matings_se, 
+                    ymax = num_unique_matings_mean + num_unique_matings_se),
+                color = "black", width = 0.3) +
+  facet_grid(. ~ Experiment, labeller = as_labeller(facet_labels)) +
+  ylab('Number of unique mates') +
+  scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.text.x  = element_blank(),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        legend.title = element_blank(),
+        legend.text  = element_text(margin = margin(r = 10, l = 2)),
+        legend.position = 'bottom',
+        legend.margin = margin(0,0,0,0),
+        panel.grid.minor = element_blank())
+
+# ggsave('figures/Figure_numUniqueMates.pdf', p2, width = 200, height = 110, units = 'mm')
+
+p2
+```
+
+And we conduct another 2x3 mixed ANOVA.
+
+```{r}
+m2 <- aov(num_unique_mates ~ Experiment*ftype + Error(Simulation/ftype), data = d.females)
+
+summary(m2)
+```
+
+It seems that the difference between strategies only exists in Experiment 3, supported by the significant interaction effect.
+
+## 2.3. Proportion of mate switching (promiscuity)
+
+Create final plot.
+
+```{r warning=F, message=F}
+prop_Summary <- 
+  d %>%
+  group_by(Experiment, ftype) %>%
+  summarise(prop_mean = mean(prop_mate_switching),
+            prop_se   = sqrt(var(prop_mate_switching) / length(prop_mate_switching)))
+
+p3 <- 
+  d %>%
+  mutate(ftype = fct_relevel(ftype, c('Revealers', 'Concealers'))) %>%
+  filter(Sex == 'female') %>%
+
+  ggplot(aes(x = ftype, y = prop_mate_switching, fill = ftype)) +
+  geom_violin(stat = "ydensity") +
+  geom_jitter(colour = "black", size = 0.6, width = 0.13, 
+              alpha = 0.04, show.legend = FALSE) +
+  geom_point(data = prop_Summary, aes(y = prop_mean), 
+             color = "black", size = 0.6, show.legend = FALSE) + 
+  geom_errorbar(data = prop_Summary, 
+                aes(y = prop_mean, ymin = prop_mean - prop_se, 
+                    ymax = prop_mean + prop_se),
+                color = "black", width = 0.3) +
+  facet_grid(. ~ Experiment, labeller = as_labeller(facet_labels)) +
+  ylab('Proportion of mate switching') +
+  scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.text.x  = element_blank(),
+        axis.title.y = element_text(margin = margin(r = 10)),
+        legend.title = element_blank(),
+        legend.text  = element_text(margin = margin(r = 10, l = 2)),
+        legend.position = 'bottom',
+        legend.margin = margin(0,0,0,0),
+        panel.grid.minor = element_blank())
+
+# ggsave('figures/Figure_mateSwitching.pdf', p3, width = 200, height = 110, units = 'mm')
+
+p3
+```
+
+Females rarely switch mates, but Concealers do slightly more in Experiment 3. Let's conduct a final 2x3 mixed ANOVA.
+
+```{r}
+m3 <- aov(prop_mate_switching ~ Experiment*ftype + Error(Simulation/ftype), data = d.females)
+
+summary(m3)
+```
+
+Though the interaction is not statistically significant, the low p-value suggests that there is a small effect.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+

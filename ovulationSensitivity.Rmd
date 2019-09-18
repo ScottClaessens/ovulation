@@ -1,0 +1,535 @@
+---
+title: "The female rivalry hypothesis - Sensitivity Analyses"
+author: Scott Claessens
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    toc_float: true
+---
+
+```{r warning=F, message=F}
+library(tidyverse)
+library(cowplot)
+```
+
+After conducting our main analyses, we fixed the conditions of the agent-based model to those in Experiment 3, and manipulated one parameter at a time to see how sensitive our main result was to model variations. Below, we analyse and visualise five of these parameter sweeps.
+
+# 1. Proportion of promiscuous males
+
+First, we manipulate the proportion of promiscuous males in the population from 0% to 100% in steps of 10%. Load in the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_MalePromiscuity.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+There are 440 rows (11 parameters x 20 runs x 2 female strategies).
+
+## 1.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of the proportion of promiscuous males ('Sens'), (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m1.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m1.1)
+```
+```{r}
+model.tables(m1.1, "means")
+```
+
+This analysis shows that, as the proportion of promiscuous males in the population ('Sens') increases from 0% to 100%, the fitness advantage of concealed ovulation decreases toward zero.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m1.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m1.2)
+```
+```{r}
+model.tables(m1.2, "means")
+```
+
+The results for paternal investment are the same.
+
+## 1.2. Visualisation
+
+We now visualise the interaction between proportion of promiscuous males and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p1.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 1.5), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 1.5), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Percentage of males promiscuous (%)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,9)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p1.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 1.5), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 1.5), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Percentage of males promiscuous (%)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,10000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p1 <- plot_grid(p1.1, NULL, p1.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/Figure2.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/Figure2.png', width = 250, height = 100, units = 'mm')
+
+p1
+```
+
+# 2. Decay of aggression damage
+
+Next, we manipulate the decay of aggression damage from 0 (damage is never healed) to 1 (damage heals immediately) in steps of 0.1. Load in the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_AdDecay.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+There are 440 rows (11 parameters x 20 runs x 2 female strategies).
+
+## 2.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of the decay of aggression damage ('Sens'), (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m2.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m2.1)
+```
+```{r}
+model.tables(m2.1, "means")
+```
+
+This analysis shows that when the decay of aggression damage ('Sens') increases above roughly 0.5, the fitness advantage of concealed ovulation decreases.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m2.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m2.2)
+```
+```{r}
+model.tables(m2.2, "means")
+```
+
+The results for paternal investment are the same.
+
+## 2.2. Visualisation
+
+We now visualise the interaction between the decay of aggression damage and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p2.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1.5, 
+               data = RS_Summary, position = position_dodge(width = 0.01), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 0.01, position = position_dodge(width = 0.01), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 0.01), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Decay of aggression damage") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,8)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p2.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1.5, 
+               data = PI_Summary, position = position_dodge(width = 0.01), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 0.01, position = position_dodge(width = 0.01), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 0.01), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Decay of aggression damage") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,8000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+
+p2 <- plot_grid(p2.1, NULL, p2.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS2.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS2.png', width = 250, height = 100, units = 'mm')
+
+p2
+```
+
+# 3. Cost of aggression to self and other
+
+Next, we systematically vary both (a) the cost of aggression to the perpertrator, and (b) the cost of aggression to the victim. We vary both of these from 0 to 2 in increments of 0.5. Load the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_costOcostS.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         costO    = factor(costO),
+         costS    = factor(costS),
+         Strategy = factor(Strategy))
+```
+
+This dataset has 1000 rows (5 costs-to-self x 5 costs-to-other x 20 runs x 2 female strategies).
+
+## 3.1. Analyses
+
+We run a three-way mixed ANOVA, including (1) cost to self, (2) cost to other, (3) female strategy, and the interactions between all of these. We first include lifetime reproductive success as the DV.
+
+```{r}
+m3.1 <- aov(RS ~ costO*costS*Strategy + Error(Run/Strategy), data = d)
+
+summary(m3.1)
+```
+
+
+This three-way interaction is difficult to interpret, but it seems that the effect of condition depends on both the cost of aggression to self AND the cost of aggression to victims. Rather than look at tables of means, we will visualise this effect. But first, let's see if this result holds for paternal investment.
+
+```{r}
+m3.2 <- aov(PI ~ costO*costS*Strategy + Error(Run/Strategy), data = d)
+
+summary(m3.2)
+```
+
+The same pattern emerges, with the three-way interaction reaching significance.
+
+## 3.2. Visualisation
+
+Together, the cost of aggression to self AND other influence the difference between the strategies. To visualise this, we will load a pre-calculated dataset that contains the differences between strategies (in either reproductive success differences, or unit differences, depending on the outcome). We will now create two heatmaps that summarise how the cost of aggression affects the effect of strategy.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_costOcostSdiffs.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         costO    = factor(costO),
+         costS    = factor(costS),
+         Strategy = factor(Strategy))
+```
+
+We use `geom_tile` to create our heatmaps. See source code for details.
+
+```{r echo=F, warning=F, message=F}
+DiffRS_Summary <- 
+  d %>%
+  group_by(costO, costS) %>%
+  summarize(DiffRS_mean = mean(DiffRS))
+
+p3.1 <- 
+  ggplot(DiffRS_Summary, aes(costO, costS)) +
+  geom_tile(aes(fill = DiffRS_mean)) +
+  scale_fill_gradient2(low = "#6691b1", mid="white", high = "#ffd3b4",
+                       midpoint = 0, guide = "colourbar") +
+  labs(x = "Cost to other",
+       y = "Cost to self",
+       fill = "RS Difference")
+
+DiffPI_Summary <- 
+  d %>%
+  group_by(costO, costS) %>%
+  summarize(DiffPI_mean = mean(DiffPI))
+
+p3.2 <- 
+  ggplot(DiffPI_Summary, aes(costO, costS)) +
+  geom_tile(aes(fill = DiffPI_mean)) +
+  scale_fill_gradient2(low = "#6691b1", mid="white", high = "#ffd3b4",
+                       midpoint = 0, guide = "colourbar") +
+  labs(x = "Cost to other",
+       y = "Cost to self",
+       fill = "PI Difference")
+
+p3 <- plot_grid(p3.1, p3.2, labels = c('a', 'b'), ncol = 1, align = 'v')
+
+ggsave('figures/FigureS3.pdf', width = 150, height = 200, units = 'mm')
+ggsave('figures/FigureS3.png', width = 150, height = 200, units = 'mm')
+
+p3
+```
+
+These heatmaps show that the advantage of concealed ovulation only holds when (a) the damage to the victim of aggression is at least 0.5, and (b) the cost to self is less than 1.5. Aggression must be harmful to others, but not too costly for the perpetrator.
+
+# 4. Fertile attractiveness multiplier for Revealers
+
+Next, we vary the attractiveness multiplier for females during their fertile period. We test values between 0 and 2, in increments of 0.25. Let's load the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_InitialFMod.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+This dataset contains 360 rows (9 parameters x 20 runs x 2 female strategies).
+
+## 4.1. Analyses
+
+As before, we conducted mixed ANOVAs to determine (a) the main effect of the attractiveness multiplier, (b) the main effect of female strategy, and (c) the interaction. We start by analysing the reproductive success of females.
+
+```{r}
+m4.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m4.1)
+```
+```{r}
+model.tables(m4.1, "means")
+```
+
+The female attractiveness multiplier does not seem to have any effect on the outcome, and does not interact with the effect of strategy. Does the same pattern hold for paternal investment?
+
+```{r}
+m4.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m4.2)
+```
+```{r}
+model.tables(m4.2, "means")
+```
+
+Yes, it does.
+
+## 4.2. Visualisation
+
+To see what's going on here, let's draw two more line graphs. As before, code is in the source .Rmd file.
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p4.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1.5, 
+               data = RS_Summary, position = position_dodge(width = 0.01), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 0.01, position = position_dodge(width = 0.01), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 0.01), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Female attractiveness multiplier (during fertile period)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,8)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p4.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1.5, 
+               data = PI_Summary, position = position_dodge(width = 0.01), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 0.01, position = position_dodge(width = 0.01), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 0.01), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Female attractiveness multiplier (during fertile period)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,8000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+
+p4 <- plot_grid(p4.1, NULL, p4.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS4.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS4.png', width = 250, height = 100, units = 'mm')
+
+p4
+```
+
+The attractiveness multiplier seems to have no effect on reproductive success or paternal investment, and does not interact with the main effect of strategy.
+
+# 5. Competitor and mate search radiuses
+
+Finally, we manipulate the radiuses that the female and male agents search in: both when searching for rivals to aggress against (females), and when searching for mates (males).
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity_Search.csv') %>%
+  as_tibble() %>%
+  mutate(Run               = factor(Run),
+         competitor_radius = factor(competitor_radius),
+         search_radius     = factor(search_radius),
+         Strategy          = factor(Strategy))
+```
+
+## 5.1. Analyses
+
+We run our final batch of ANOVAs, looking at the main effects of, and interactions between, (a) competitor radius, (b) mate search radius, and (c) female strategy. We'll start with reproductive success as the DV.
+
+```{r}
+m5.1 <- aov(RS ~ search_radius*competitor_radius*Strategy + Error(Run/Strategy), data = d)
+
+summary(m5.1)
+```
+
+Not much going on, although male mate search radius slightly interacts with the effect of condition. We'll probably find the same thing when we include paternal investment as the DV.
+
+```{r}
+m5.2 <- aov(PI ~ search_radius*competitor_radius*Strategy + Error(Run/Strategy), data = d)
+
+summary(m5.2)
+```
+
+Even less going on. It seems that the search radiuses of agents do not substantially affect the trajectory of the model.
+
+## 5.2. Visualisation
+
+Let's visualise this lack of effect directly, for both DVs.
+
+```{r echo=F, warning=F, message=F, fig.height=8, fig.width=8}
+d <-
+  d %>%
+  mutate(search_radius = as.numeric(levels(search_radius))[search_radius])
+
+RS_Summary <- 
+  d %>%
+  group_by(search_radius, competitor_radius, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se   = sqrt(var(RS) / length(RS)))
+
+facet_labels <- c("2" = "Competitor Radius = 2",
+                  "3" = "Competitor Radius = 3",
+                  "4" = "Competitor Radius = 4",
+                  "5" = "Competitor Radius = 5")
+p5.1 <- 
+  d %>%
+  ggplot(aes(x = search_radius, y = RS, colour = Strategy)) +
+  geom_point(aes(y = RS_mean), size = 1, 
+             data = RS_Summary, position = position_dodge(width = 0.1), show.legend = FALSE) + 
+  geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                width = 0.5, position = position_dodge(width = 0.1), data = RS_Summary) +
+  geom_line(aes(y = RS_mean), position = position_dodge(width = 0.1), data = RS_Summary) +
+  scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+  xlab("Male Mate Search Radius") + 
+  ylab("Reproductive success (number of children)") +
+  ylim(c(0,8)) +
+  theme_bw() +
+  theme(text = element_text(size = 10),
+        panel.grid = element_blank()) +
+  facet_grid(. ~ competitor_radius, labeller = labeller(competitor_radius = facet_labels))
+
+PI_Summary <- 
+  d %>%
+  group_by(search_radius, competitor_radius, Strategy) %>%
+  summarise(PI_mean = mean(PI),
+            PI_se   = sqrt(var(PI) / length(PI)))
+
+p5.2 <- 
+  d %>%
+  ggplot(aes(x = search_radius, y = PI, colour = Strategy)) +
+  geom_point(aes(y = PI_mean), size = 1, 
+             data = PI_Summary, position = position_dodge(width = 0.1), show.legend = FALSE) + 
+  geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                width = 0.5, position = position_dodge(width = 0.1), data = PI_Summary) +
+  geom_line(aes(y = PI_mean), position = position_dodge(width = 0.1), data = PI_Summary) +
+  scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+  xlab("Male Mate Search Radius") + 
+  ylab("Paternal investment (units)") +
+  ylim(c(0,8000)) +
+  theme_bw() +
+  theme(text = element_text(size = 10),
+        panel.grid = element_blank()) +
+  facet_grid(. ~ competitor_radius, labeller = labeller(competitor_radius = facet_labels))
+
+p5 <- plot_grid(p5.1, p5.2, labels = c('a', 'b'), ncol = 1, align = 'v')
+
+ggsave('figures/FigureS5.pdf', width = 200, height = 170, units = 'mm')
+ggsave('figures/FigureS5.png', width = 200, height = 170, units = 'mm')
+
+p5
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
