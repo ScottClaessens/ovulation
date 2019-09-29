@@ -1,0 +1,576 @@
+---
+title: "The female rivalry hypothesis - Sensitivity Analyses 2"
+author: Scott Claessens
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    toc_float: true
+---
+
+```{r warning=F, message=F}
+library(tidyverse)
+library(cowplot)
+```
+
+For further sensitivity analyses, we fixed the conditions of the agent-based model to those in Experiment 3, and manipulated one parameter at a time to see how sensitive our main result was to model variations.
+
+# 1. Offspring investment
+
+First, we manipulate the number of "offspring investment" units required to successfully have a child. Load in the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity2_OffspringInvest.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+There are 360 rows (9 parameter values x 20 runs x 2 female strategies).
+
+## 1.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of the required offspring investment ('Sens'), (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m1.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m1.1)
+```
+```{r}
+model.tables(m1.1, "means")
+```
+
+This analysis shows that, as the required offspring investment increases, the number of children decreases. Of course, this makes sense. But the interaction with Strategy implies that Concealers still have more children than Revealers.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m1.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m1.2)
+```
+```{r}
+model.tables(m1.2, "means")
+```
+
+As the required offspring investment increases, the parental investment increases. Again, this makes sense. Our main result is robust to this sensitivity analysis.
+
+## 1.2. Visualisation
+
+We now visualise the interaction between required offspring investment and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p1.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 1.5), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 1.5), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Required offspring investment (units)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,13)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p1.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 1.5), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 1.5), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Required offspring investment (units)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,10000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p1 <- plot_grid(p1.1, NULL, p1.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS8.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS8.png', width = 250, height = 100, units = 'mm')
+
+p1
+
+# cleanup
+rm(p1.1, p1.2, PI_Summary, RS_Summary)
+```
+
+# 2. Population size
+
+Next, we manipulate the population size. There are always 50% females and 50% males. Also, the females are always 50% Concealers and 50% Revealers. So a population size of 100 would have 50 males, 25 Concealer females, and 25 Revealer females. Load in the data.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity2_PopSize.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+There are 240 rows (6 population sizes x 20 runs x 2 female strategies).
+
+## 2.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of population size, (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m2.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m2.1)
+```
+```{r}
+model.tables(m2.1, "means")
+```
+
+This analysis shows that, as population sizes increase, the number of children increases. The interaction with Strategy implies that Concealers still have more children than Revealers.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m2.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m2.2)
+```
+```{r}
+model.tables(m2.2, "means")
+```
+
+However, paternal investment does not change with population size. Nevertheless, a main effect of Strategy remains, suggesting that Concealers have more paternal investment than Revealers.
+
+## 2.2. Visualisation
+
+We now visualise the interaction between population size and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p2.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 1.5), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 1.5), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Population size (number of individuals)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,9)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p2.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 1.5), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 4, position = position_dodge(width = 1.5), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 1.5), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Population size (number of individuals)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,10000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p2 <- plot_grid(p2.1, NULL, p2.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS9.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS9.png', width = 250, height = 100, units = 'mm')
+
+p2
+
+# cleanup
+rm(p2.1, p2.2, PI_Summary, RS_Summary)
+```
+
+# 3. Proportion of females (MF ratio)
+
+Next, we manipulate the proportion of females in the population.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity2_MFRatio.csv') %>%
+  as_tibble() %>%
+  mutate(Run      = factor(Run),
+         Sens     = factor(Sens),
+         Strategy = factor(Strategy))
+```
+
+There are 200 rows (5 MF ratios x 20 runs x 2 female strategies).
+
+## 3.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of MF ratio, (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m3.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m3.1)
+```
+```{r}
+model.tables(m3.1, "means")
+```
+
+There's a main effect of proportion of females. 0% and 100% females produce no children, while proportions in between do. 50:50 ratio is the sweet spot. But the main effect of Strategy and interaction effect indicate that Concealers have more children than Revealers.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m3.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m3.2)
+```
+```{r}
+model.tables(m3.2, "means")
+```
+
+We get the same pattern.
+
+## 3.2. Visualisation
+
+We now visualise the interaction between MF ratio and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p3.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 0.05), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Proportion of females in population") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,11)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p3.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 0.05), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Proportion of females in population") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,18000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p3 <- plot_grid(p3.1, NULL, p3.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS10.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS10.png', width = 250, height = 100, units = 'mm')
+
+p3
+
+# cleanup
+rm(p3.1, p3.2, PI_Summary, RS_Summary)
+```
+
+# 4. Proportion of Concealers (Concealer:Revealer ratio)
+
+Next, we manipulate the proportion of Concealers among females.
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity2_ConcRevRatio.csv') %>%
+  as_tibble() %>%
+  mutate(Run       = factor(Run),
+         Sens      = factor(prop_conceal),
+         Strategy  = factor(Strategy))
+```
+
+There are 240 rows (7 ratios x 20 runs x 2 female strategies).
+
+## 4.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of Concealer:Revealer ratio, (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m4.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m4.1)
+```
+```{r}
+model.tables(m4.1, "means")
+```
+
+There's a main effect of proportion of Concealers. The main effect of Strategy and interaction effect indicate that Concealers have more children than Revealers.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m4.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m4.2)
+```
+```{r}
+model.tables(m4.2, "means")
+```
+
+We get the same pattern.
+
+## 4.2. Visualisation
+
+We now visualise the interaction between Concealer:Revealer ratio and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p4.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 0.05), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Proportion of Concealers (within females)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,9)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p4.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 0.05), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Proportion of Concealers (within females)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,10000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p4 <- plot_grid(p4.1, NULL, p4.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS11.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS11.png', width = 250, height = 100, units = 'mm')
+
+p4
+
+# cleanup
+rm(p4.1, p4.2, PI_Summary, RS_Summary)
+```
+
+# 5. Lattice size
+
+Next, we manipulate the size of the world. It's always a square (height == width).
+
+```{r}
+d <-
+  read.csv('data/ovulationSensitivity2_LatticeSize.csv') %>%
+  as_tibble() %>%
+  mutate(Run       = factor(Run),
+         Sens      = factor(Sens),
+         Strategy  = factor(Strategy))
+```
+
+There are 200 rows (5 lattice sizes x 20 runs x 2 female strategies).
+
+## 5.1. Analyses
+
+We run mixed ANOVAs to determine (a) the main effect of lattice size, (b) the main effect of Strategy, and (c) the interaction between these. Our first ANOVA includes lifetime reproductive success as the dependent variable.
+
+```{r}
+m5.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m5.1)
+```
+```{r}
+model.tables(m5.1, "means")
+```
+
+There's a main effect of world size. Presumably, this is because with larger worlds, agents have to spend more time and energy searching for mates. 
+
+The main effect of Strategy and interaction effect indicate that Concealers have more children than Revealers.
+
+Let's run the same model with paternal investment as the dependent variable.
+
+```{r}
+m5.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
+
+summary(m5.2)
+```
+```{r}
+model.tables(m5.2, "means")
+```
+
+Same pattern.
+
+## 5.2. Visualisation
+
+We now visualise the interaction between lattice size and female strategy with two line graphs, one for each dependent variable. Again, the code for this plot is hidden (see the source .Rmd code for details).
+
+```{r echo=F, warning=F, message=F, fig.height=4, fig.width=12}
+d <-
+  d %>%
+  mutate(Sens = as.numeric(levels(Sens))[Sens])
+
+RS_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarise(RS_mean = mean(RS),
+            RS_se = sqrt(var(RS) / length(RS)))
+
+p5.1 <- 
+  ggplot(d, aes(x = Sens, y = RS, colour = Strategy)) +
+    geom_point(aes(y = RS_mean), size = 1, 
+               data = RS_Summary, position = position_dodge(width = 0.05), 
+               show.legend = FALSE) + 
+    geom_errorbar(aes(y = RS_mean, ymin = RS_mean - RS_se, ymax = RS_mean + RS_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = RS_Summary) +
+    geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Lattice width (and height)") +
+    ylab("Reproductive success (number of children)") +
+    ylim(c(0,9)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank()) +
+    guides(colour = FALSE)
+    
+
+PI_Summary <- 
+  d %>%
+  group_by(Sens, Strategy) %>%
+  summarize(PI_mean = mean(PI),
+            PI_se = sqrt(var(PI) / length(PI)))
+
+p5.2 <- 
+  ggplot(d, aes(x = Sens, y = PI, colour = Strategy)) +
+    geom_point(aes(y = PI_mean), size = 1, 
+               data = PI_Summary, position = position_dodge(width = 0.05), show.legend = FALSE) + 
+    geom_errorbar(aes(y = PI_mean, ymin = PI_mean - PI_se, ymax = PI_mean + PI_se), 
+                  width = 0.1, position = position_dodge(width = 0.05), data = PI_Summary) +
+    geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
+    xlab("Lattice width (and height)") +
+    ylab("Paternal investment (units)") +
+    ylim(c(0,10000)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          panel.grid = element_blank())
+    
+
+p5 <- plot_grid(p5.1, NULL, p5.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+                rel_widths = c(0.7375, 0.05, 1))
+
+ggsave('figures/FigureS12.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS12.png', width = 250, height = 100, units = 'mm')
+
+p5
+
+# cleanup
+rm(p5.1, p5.2, PI_Summary, RS_Summary)
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

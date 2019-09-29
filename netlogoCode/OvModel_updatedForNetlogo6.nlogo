@@ -8,33 +8,32 @@ males-own [male_MV male_attractiveness move_threshold cur_mate mate_list male_pr
 
 to setup
   clear-all
-  reset-ticks   ; Carlo added this in updating to 6.0.2
+  random-seed new-seed
 
-
- random-seed new-seed
-
- ;;THIS SEEMS TO BE NECESSARY TO AVOID ANY DIEQUILIBRIUM IN INITIALIZING TWO TYPES OF FEMALE AGENTS
- ifelse random-float 1 < 0.5 [
-   create-AcSig
-   create-Cons
-   ]
- [
-   create-Cons
-   create-AcSig
-   ]
-
- create-males num_males
+  ;;THIS SEEMS TO BE NECESSARY TO AVOID ANY DIEQUILIBRIUM IN INITIALIZING TWO TYPES OF FEMALE AGENTS
+  ifelse random-float 1 < 0.5 [
+    create-AcSig
+    create-Cons
+  ]
   [
-  set shape "male"
-  setxy random-xcor random-ycor
-  set male_MV random-normal 50 5 ; sets males to mate value average 50 sd 5
-  set male_attractiveness male_MV
-  set mate_list []
-  ifelse prop_m_promiscuity > random 100  [set male_promiscuity 100] [set male_promiscuity 0]
+    create-Cons
+    create-AcSig
   ]
 
- ask turtles [update-screen]
- color-turtles
+  create-males num_males
+  [
+    set shape "male"
+    setxy random-xcor random-ycor
+    set male_MV random-normal 50 5 ; sets males to mate value average 50 sd 5
+    set male_attractiveness male_MV
+    set mate_list []
+    ifelse prop_m_promiscuity > random 100  [set male_promiscuity 100] [set male_promiscuity 0]
+  ]
+
+  ask turtles [update-screen]
+  color-turtles
+
+  reset-ticks   ; Carlo added this in updating to 6.0.2
 end
 
 to create-AcSig
@@ -47,16 +46,17 @@ to create-AcSig
     set female_MV random-normal 50 SD_female_MV ; sets females to mate value average 50 sand sd set by SD_female_MV
     set mate_list []
     set pregnant 0
+    set offspring_count 0
     set offspring_investment 0
     set f_cue_modulator initial_f_mod
-;    set f_cue_modulator 1
-;    set i_cue_modulator 1
+;   set f_cue_modulator 1
+;   set i_cue_modulator 1
     ifelse decrement = TRUE [
       set i_cue_modulator (( 24 - ((f_cue_modulator - 1) * 4)) / 24) ;  This sets i_cue_mod so that average desirability modification is the same over the cycle
-      ]
+    ]
     [
       set i_cue_modulator 1
-      ]
+    ]
     ;;set i_cue_modulator (( 28 - ((f_cue_modulator - 1) * 0)) / 28) ;  This sets i_cue_mod so that average desirability modification is the same over the cycle
     ;; THIS MEANS THAT c_cue_modulator is 0.958 when initial_f_mod is 1.25
     ifelse prop_f_aggress > random 100  [set aggressor 1] [set aggressor 0]
@@ -76,6 +76,7 @@ to create-Cons
     set female_MV random-normal 50 SD_female_MV ; sets females to mate value average 50 and sd set by SD_female_MV
     set mate_list []
     set pregnant 0
+    set offspring_count 0
     set offspring_investment 0
     set f_cue_modulator 1
     set i_cue_modulator 1
@@ -87,233 +88,223 @@ to create-Cons
 end
 
 to go
- ask females
+  ask females
   [
-  ifelse pregnant = 0                                      ;if females aren't pregnant/lactating they 'invest' in cycleling, if they are pregnant/lactating
-   [
-   set heading random 360
-   fd 1
-   cycle
-   ]
-   [
-   set offspring_investment offspring_investment + 1
-   if offspring_investment > 1999
+    ifelse pregnant = 0                                      ;if females aren't pregnant/lactating they 'invest' in cycleling, if they are pregnant/lactating
     [
-    set offspring_count offspring_count + 1
-    set pregnant 0
-    set offspring_investment 0
-    ]
-   ]
-  set-cue                            ;sets the effect of fertility on desirability
-  update-screen
-  set males_on_patch count males-here
-  ifelse males_on_patch > 0
-   [
-   let temp max [male_attractiveness] of males-here
-   set cur_mate [who] of one-of males-here with [male_attractiveness = temp]     ;selects one of the highest mate value males from the current patch
-   set mate_list fput cur_mate mate_list                                         ;adds him to the mate list
-   let my_who who
-   if (cycle_day > 11 and cycle_day < 16) and (preg_likelihood > random 100)       ;if she is fertile, she can get pregnant
-;   if (cycle_day > 7 and cycle_day < 22) and (preg_likelihood > random 100)       ;if she is fertile, she can get pregnant
-     [
-     set pregnant 1
-     set cycle_day -1
-     ]
-    ask turtle cur_mate                                                           ;sets the male partners current mate to self and adds self to his mate list
-     [
-     set cur_mate my_who
-     set mate_list fput cur_mate mate_list
-     ]
+      set heading random 360
+      fd 1
+      cycle
     ]
     [
-    set cur_mate -1
+      set offspring_investment offspring_investment + 1
+      if offspring_investment > offspring_invest_max_amount - 1
+      [
+        set offspring_count offspring_count + 1
+        set pregnant 0
+        set offspring_investment 0
+      ]
+    ]
+    set-cue                            ;sets the effect of fertility on desirability
+    update-screen
+    set males_on_patch count males-here
+    ifelse males_on_patch > 0
+    [
+      let temp max [male_attractiveness] of males-here
+      set cur_mate [who] of one-of males-here with [male_attractiveness = temp]     ;selects one of the highest mate value males from the current patch
+      set mate_list fput cur_mate mate_list                                         ;adds him to the mate list
+      let my_who who
+      if (cycle_day > 11 and cycle_day < 16) and (preg_likelihood > random 100)       ;if she is fertile, she can get pregnant
+;     if (cycle_day > 7 and cycle_day < 22) and (preg_likelihood > random 100)        ;if she is fertile, she can get pregnant
+      [
+        set pregnant 1
+        set cycle_day -1
+      ]
+      ask turtle cur_mate                                                           ;sets the male partners current mate to self and adds self to his mate list
+      [
+        set cur_mate my_who
+        set mate_list fput cur_mate mate_list
+      ]
+    ]
+    [
+      set cur_mate -1
     ]
     if (likelihood_f_aggress > random 100) [aggress-to-rivals]
-    decay-aggress-damage               ;the effects of past aggression are reduced
-    set-aggression-damage              ;deducts the damage from aggression from desirability
+    decay-aggress-damage               ; the effects of past aggression are reduced
+    set-aggression-damage              ; deducts the damage from aggression from desirability
   ]
 
-
- ask males
+  ask males
   [
-  ifelse count females-here > 0  ;execute this if there are more than 0 females in your current location
-   [
-    ifelse male_promiscuity > random 100                          ;this is ifelse because energy is either spent on search or offspring of partner
+    ifelse count females-here > 0  ; execute this if there are more than 0 females in your current location
     [
-    set move_threshold max [female_attractiveness] of females-here
-    set heading random 360  ;now promiscuous males start by moving a bit and looking around
-    fd 1
-    if (count females in-radius search_radius > 0)                 ;this way the model doesn't halt if there are no females in search radius
-     [
-     ifelse max [female_attractiveness] of females in-radius search_radius > move_threshold
+      ifelse male_promiscuity > random 100                          ; this is ifelse because energy is either spent on search or offspring of partner
       [
-      ;print "temptation"
-      move-to max-one-of females in-radius search_radius [female_attractiveness]
+        set move_threshold max [female_attractiveness] of females-here
+        set heading random 360  ; now promiscuous males start by moving a bit and looking around
+        fd 1
+        if (count females in-radius search_radius > 0)                 ; this way the model doesn't halt if there are no females in search radius
+        [
+          ifelse max [female_attractiveness] of females in-radius search_radius > move_threshold
+          [
+            ; print "temptation"
+            move-to max-one-of females in-radius search_radius [female_attractiveness]
+          ]
+          ; execute this if you are not switching partners
+          [
+          ]
+        ]
       ]
-    ;execute this if you are not switching partners
-      [
-      ]
-     ]
-    ]
 
-    [
-    move-to turtle cur_mate
-    ask turtle cur_mate
-     [
-     set offspring_investment offspring_investment + 1       ;if energy not spent on mate search, gets spent on offspring of partner
-     set cum_paternal_i cum_paternal_i + 1                   ;female tracks total paternal investment
-     ]
+      [
+        move-to turtle cur_mate
+        ask turtle cur_mate
+        [
+          set offspring_investment offspring_investment + 1       ; if energy not spent on mate search, gets spent on offspring of partner
+          set cum_paternal_i cum_paternal_i + 1                   ; female tracks total paternal investment
+        ]
+      ]
     ]
-   ]
-  ;execute this if there are no females in your current locations
-  [
-  ifelse count females in-radius search_radius > 0
-   [
-   move-to max-one-of females in-radius search_radius [female_attractiveness]
-   ]
-  ;if no females in search radius set heading randomly and move fd 1
-   [
-   set heading random 360
-   fd 1
-   ]
+    ; execute this if there are no females in your current locations
+    [
+      ifelse count females in-radius search_radius > 0
+      [
+        move-to max-one-of females in-radius search_radius [female_attractiveness]
+      ]
+      ; if no females in search radius set heading randomly and move fd 1
+      [
+        set heading random 360
+        fd 1
+      ]
+    ]
   ]
- ]
 
-
- color-turtles
- tick
- update-the-plots
- ;check-print
+  color-turtles
+  tick
+  update-the-plots
+  ; check-print
 end
 
 to cycle
- set cycle_day (cycle_day + 1)
- if cycle_day > 28
-  [set cycle_day 1]
+  set cycle_day (cycle_day + 1)
+  if cycle_day > 28 [set cycle_day 1]
 end
 
 to set-cue
- ifelse (cycle_day > 11 and cycle_day < 16)
- ;;ifelse (cycle_day > 7 and cycle_day < 22)
+  ifelse (cycle_day > 11 and cycle_day < 16)
+; ifelse (cycle_day > 7 and cycle_day < 22)
   [
-  set ovulating 1
-  set cue_modulator f_cue_modulator
+    set ovulating 1
+    set cue_modulator f_cue_modulator
   ]
   [
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;; SHOULDN'T BE THIS "0"??
-  ;;set ovulating 1
-  set ovulating 0
-  set cue_modulator i_cue_modulator
+    set ovulating 0
+    set cue_modulator i_cue_modulator
   ]
- set female_attractiveness (female_MV * cue_modulator)
-
+  set female_attractiveness (female_MV * cue_modulator)
 end
 
 
 to aggress-to-rivals
-       ;the cost to females of aggressing affects aggress_damage (i.e., as in a direct fight where it may be costly to aggress)
-   if aggressor = 1
+  ; the cost to females of aggressing affects aggress_damage (i.e., as in a direct fight where it may be costly to aggress)
+  if aggressor = 1
+  [
+    if (count females in-radius competitor_radius > 0)                 ; this way the model doesn't halt if there are no females in competitor radius
     [
-    if (count females in-radius competitor_radius > 0)                 ;this way the model doesn't halt if there are no females in competitor radius
-     [
-     ifelse f_detectOv? = true  ;if females can detect ovulating females they target ovulators, else they target most attractive female
-;     if f_detectOv? = true  ;if females can detect ovulating females they target ovulators, else they target most attractive female
-
-       [
-       if count females in-radius competitor_radius with [(ovulating = 1) and (Ftype = 1)] > 0 ;if there is a female around who is ovulating and emitting ovulation cues
+      ifelse f_detectOv? = true  ; if females can detect ovulating females they target ovulators, else they target most attractive female
+      [
+        if count females in-radius competitor_radius with [(ovulating = 1) and (Ftype = 1)] > 0 ;if there is a female around who is ovulating and emitting ovulation cues
         [
           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
           ;;; HERE THE TARGET OF THE AGGRESSION WILL BE ANY (ONE-OF) FEMALE IN RADIUS OVULATING WITH TYPE=1 (i.e.,SIGNALING)
-        ask one-of females in-radius competitor_radius with [(ovulating = 1) and (Ftype = 1)]
-         [
-         set aggress_damage (aggress_damage + costO_aggress)
-         ]
+          ask one-of females in-radius competitor_radius with [(ovulating = 1) and (Ftype = 1)]
+          [
+            set aggress_damage (aggress_damage + costO_aggress)
+          ]
         ]
-       ]
-
-       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-       ;;;;;;;;;;;;;;;;;;;; THIS IS THE BRANCH  WHERE THE AGGRESSION IS PERFORMED AGAINST ATTRACTIVE FEMALES ;;;;;;;;;;;;;;;;;
-       [
-          ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-          ;;; HERE THE TARGET OF THE AGGRESSION WILL BE ANY FEMALE IN RADIUS MAXIMIZING THE ATTRACTIVENESS (AND WITH ATTRACTIVENESS > MY ATTRACTIVENESS)
-          ;;; WHAT ABOUT THE INTERPLAY BETWEEN ATTRACTIVENESS & ABILITY IN PERFORMING AGGRESSION AND / OR TOLERATING THE AGGRESSION ??
-       if max [female_attractiveness] of females in-radius competitor_radius > female_attractiveness ;if there is a female around who is more desirable than me
+      ]
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      ;;;;;;;;;;;;;;;;;;;; THIS IS THE BRANCH  WHERE THE AGGRESSION IS PERFORMED AGAINST ATTRACTIVE FEMALES ;;;;;;;;;;;;;;;;;
+      [
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ----------------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        ;;; HERE THE TARGET OF THE AGGRESSION WILL BE ANY FEMALE IN RADIUS MAXIMIZING THE ATTRACTIVENESS (AND WITH ATTRACTIVENESS > MY ATTRACTIVENESS)
+        ;;; WHAT ABOUT THE INTERPLAY BETWEEN ATTRACTIVENESS & ABILITY IN PERFORMING AGGRESSION AND / OR TOLERATING THE AGGRESSION ??
+        if max [female_attractiveness] of females in-radius competitor_radius > female_attractiveness ;if there is a female around who is more desirable than me
         [
-        ask max-one-of females in-radius competitor_radius [female_attractiveness]
-         [
-         set aggress_damage (aggress_damage + costO_aggress) ;cost to the target of aggression
-         ]
+          ask max-one-of females in-radius competitor_radius [female_attractiveness]
+          [
+            set aggress_damage (aggress_damage + costO_aggress) ;cost to the target of aggression
+          ]
         ]
-       ]
+      ]
 
       set aggress_damage (aggress_damage + costS_aggress) ;this is the cost to the female doing the aggressing
-      ]
-     ]
+    ]
+  ]
 end
 
 to decay-aggress-damage
- set aggress_damage (aggress_damage * (1 - ad_decay)) ;where ad_decay is very small
- if aggress_damage < 0 [set aggress_damage 0] ;so aggress_damage cannot be negative
- if aggress_damage > 100 [set aggress_damage 100] ;so aggress_damage cannot be greater than 100%
+  set aggress_damage (aggress_damage * (1 - ad_decay)) ; where ad_decay is very small
+  if aggress_damage < 0 [set aggress_damage 0] ; so aggress_damage cannot be negative
+  if aggress_damage > 100 [set aggress_damage 100] ; so aggress_damage cannot be greater than 100%
 end
 
 to set-aggression-damage
- set female_attractiveness (female_attractiveness * ( (100 - aggress_damage) / 100 )) ;where aggress damage is a % damage to desirability
+  set female_attractiveness (female_attractiveness * ( (100 - aggress_damage) / 100 )) ;where aggress damage is a % damage to desirability
 end
 
 to color-turtles
- ask males [set color scale-color sky male_promiscuity 200 -100]
- ;ask females
- ; [
- ; ifelse pregnant = 0
- ;  [set color scale-color red female_attractiveness 150 -100]
- ;  [set color scale-color orange offspring_investment 2200 -1000 ]
- ; ]
+  ask males [set color scale-color sky male_promiscuity 200 -100]
+  ;ask females
+  ; [
+  ; ifelse pregnant = 0
+  ;  [set color scale-color red female_attractiveness 150 -100]
+  ;  [set color scale-color orange offspring_investment 2200 -1000 ]
+  ; ]
 end
 
 to update-screen
   ask females
-   [
+  [
     set label ""
     if show-males_on_patch?
-     [set label males_on_patch]
-   ]
+    [set label males_on_patch]
+  ]
 end
 
 to update-the-plots
   set-current-plot-pen "AcSigs"
   if count females with [Ftype = 1] > 0
-   [
-   plot mean [offspring_count] of females with [Ftype = 1]
-   ]
+  [
+    plot mean [offspring_count] of females with [Ftype = 1]
+  ]
   set-current-plot-pen "Con"
   if count females with [Ftype = 0] > 0
-   [
-   plot mean [offspring_count] of females with [Ftype = 0]
-   ]
-  ;set-current-plot-pen "ExSex"
-  ;if count females with [Ftype = 2] > 0
+  [
+    plot mean [offspring_count] of females with [Ftype = 0]
+  ]
+  ; set-current-plot-pen "ExSex"
+  ; if count females with [Ftype = 2] > 0
   ; [
   ; plot mean [offspring_count] of females with [Ftype = 2]
   ; ]
 End
 
 to check-print
- if (ticks = 10000)
+  if (ticks = 10000)
   [
-  print "type 1"
-  ask females with [Ftype = 1]
-   [
-   show female_MV
-   show offspring_count
-   ]
-  print "type 2"
-  ask females with [Ftype = 2]
-   [
-   show female_MV
-   show offspring_count
-   ]
+    print "type 1"
+    ask females with [Ftype = 1]
+    [
+      show female_MV
+      show offspring_count
+    ]
+    print "type 2"
+    ask females with [Ftype = 2]
+    [
+      show female_MV
+      show offspring_count
+    ]
   ]
 end
 @#$#@#$#@
@@ -387,7 +378,7 @@ search_radius
 search_radius
 0
 25
-3.0
+2.0
 1
 1
 NIL
@@ -509,7 +500,7 @@ AcSig_num
 AcSig_num
 0
 100
-100.0
+50.0
 1
 1
 NIL
@@ -576,7 +567,7 @@ FertConceal_num
 FertConceal_num
 0
 100
-100.0
+50.0
 1
 1
 NIL
@@ -591,7 +582,7 @@ num_males
 num_males
 0
 200
-200.0
+100.0
 1
 1
 NIL
@@ -711,7 +702,7 @@ competitor_radius
 competitor_radius
 0
 50
-3.0
+2.0
 1
 1
 NIL
@@ -760,6 +751,21 @@ decrement
 1
 1
 -1000
+
+SLIDER
+519
+591
+744
+624
+offspring_invest_max_amount
+offspring_invest_max_amount
+1000
+3000
+2000.0
+100
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1180,7 +1186,7 @@ NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="Experiment 1 (No Aggression)" repetitions="100" runMetricsEveryStep="false">
+  <experiment name="Experiment 1 (No Aggression)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1240,8 +1246,12 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Experiment 2 (Aggression Towards Higher Mate Value)" repetitions="100" runMetricsEveryStep="false">
+  <experiment name="Experiment 2 (Aggression Towards Higher Mate Value)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1301,8 +1311,12 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Experiment 3 (Aggression Towards Ovulating)" repetitions="100" runMetricsEveryStep="false">
+  <experiment name="Experiment 3 (Aggression Towards Ovulating)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1362,6 +1376,10 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
   <experiment name="Sensitivity Analysis 1 (Proportion of Promiscuous Males)" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
@@ -1419,6 +1437,9 @@ NetLogo 6.1.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="Sensitivity Analysis 2 (Decay of Aggression Damage)" repetitions="20" runMetricsEveryStep="false">
@@ -1478,6 +1499,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
   </experiment>
   <experiment name="Sensitivity Analysis 3 (Cost of Aggression to Self / Other)" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
@@ -1533,6 +1557,9 @@ NetLogo 6.1.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="Sensitivity Analysis 4 (Initial F Mod)" repetitions="20" runMetricsEveryStep="false">
@@ -1592,6 +1619,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
   </experiment>
   <experiment name="Sensitivity Analysis 5 (Search and Competitor Radiuses)" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
@@ -1648,6 +1678,376 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="preg_likelihood">
       <value value="30"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Sensitivity Analysis 6 (Offspring Invest Max)" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num_males">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AcSig_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="FertConceal_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="offspring_invest_max_amount" first="1000" step="250" last="3000"/>
+  </experiment>
+  <experiment name="Sensitivity Analysis 7 (Population Size)" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <exitCondition>(AcSig_num != FertConceal_num) or (AcSig_num + FertConceal_num != num_males)</exitCondition>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="num_males" first="50" step="50" last="300"/>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AcSig_num" first="25" step="25" last="150"/>
+    <steppedValueSet variable="FertConceal_num" first="25" step="25" last="150"/>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Sensitivity Analysis 8 (M:F Ratio)" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <exitCondition>(AcSig_num != FertConceal_num) or (AcSig_num + FertConceal_num + num_males != 200)</exitCondition>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="num_males" first="0" step="50" last="200"/>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AcSig_num" first="0" step="25" last="100"/>
+    <steppedValueSet variable="FertConceal_num" first="0" step="25" last="100"/>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Sensitivity Analysis 9 (Concealer:Revealer Ratio)" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <exitCondition>(AcSig_num + FertConceal_num != 100)</exitCondition>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num_males">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="AcSig_num" first="0" step="20" last="100"/>
+    <steppedValueSet variable="FertConceal_num" first="0" step="20" last="100"/>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Sensitivity Analysis 10 (Lattice Size)" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <exitCondition>(world-height != world-width)</exitCondition>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num_males">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AcSig_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="FertConceal_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="world-width" first="11" step="10" last="51"/>
+    <steppedValueSet variable="world-height" first="11" step="10" last="51"/>
+  </experiment>
+  <experiment name="Sensitivity Analysis 11 (Random Seed)" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="10000"/>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
+    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
+    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
+    <enumeratedValueSet variable="prop_m_promiscuity">
+      <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="f_detectOv?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="sd_female_MV">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num_males">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="competitor_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="search_radius">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ad_decay">
+      <value value="0.01"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial_f_mod">
+      <value value="1.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costO_aggress">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="AcSig_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="FertConceal_num">
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="decrement">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="prop_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="show-males_on_patch?">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="costS_aggress">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="likelihood_f_aggress">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preg_likelihood">
+      <value value="30"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="offspring_invest_max_amount">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="50"/>
   </experiment>
 </experiments>
 @#$#@#$#@
