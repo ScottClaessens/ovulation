@@ -569,6 +569,85 @@ p5
 rm(p5.1, p5.2, PI_Summary, RS_Summary)
 ```
 
+# 6. Aggression
+
+Finally, we observe the targets of aggression in Experiment 3. This isn't a sensitivity analysis as such, just a check to see patterns of aggression over time within the model.
+
+```{r}
+d <-
+  read.csv('data/ovulationAggressTargets.csv') %>%
+  as_tibble() %>%
+  mutate(run       = factor(run),
+         target    = factor(target),
+         strategy  = factor(strategy))
+```
+
+There are 941,075 acts of aggression across all model runs.
+
+Let's see how many acts of aggression there are across model runs. Here, each point is a model run, and the y-axis measures total number of aggression acts.
+
+```{r echo=F}
+d %>%
+  group_by(run) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(y = n, x = "")) +
+  geom_boxplot() +
+  geom_jitter(width = 0.1) +
+  theme_classic() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks = element_blank()) +
+  ylab("Total acts of aggression (count)")
+```
+
+There's some variation in the amount of aggression instantiated across different model runs, but on the whole there are around 47,500 agression acts per simulation. 
+
+What about over time?
+
+```{r echo=F}
+d %>%
+  group_by(run, tick) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = tick, y = n, group = run)) +
+  geom_line(stat = "summary_bin", binwidth = 100, fun.y = mean) +
+  theme_classic() +
+  ylab("Acts of aggression (count)")
+```
+
+There are many acts of aggression at the beginning, likely because there is a larger spread of females across the lattice. But when females become pregnant and stay still, the amount of aggression plateaus.
+
+Is there variation in the amount of aggression each agent receives? Here, each point is an individual agent within a simulation.
+
+```{r echo=F}
+d %>%
+  group_by(run, target) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = run, y = n)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.2, width = 0.1) +
+  theme_classic() +
+  ylab("Acts of aggression (count)")
+```
+
+Agents receive around 1000 acts of aggression on average, with some variation.
+
+Are agents repeatedly aggressed against? We calculate a "repeated aggression" index, between 0 and 1, which summarises the proportion of aggressive acts in which an agent was aggressed against after having been aggressed in the timestep prior.
+
+```{r echo=F}
+d %>% 
+  group_by(run, target, tick) %>%
+  summarise(n = n()) %>% ungroup() %>%
+  mutate(repeated = ifelse(diff(c(0, tick)) == 1, 1, 0)) %>%
+  group_by(run, target) %>%
+  summarise(repeated = sum(repeated) / n()) %>%
+  ggplot(aes(x = run, y = repeated)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.2, width = 0.1) +
+  theme_classic() +
+  ylab("Repeated aggression (proportion of aggressive acts)")
+```
+
+Roughly 77% of aggressive acts are perpetrated in consecutive timesteps.
+
 # Session Info
 
 ```{r}

@@ -14,10 +14,12 @@ to setup
   ifelse random-float 1 < 0.5 [
     create-AcSig
     create-Cons
+    ; print "Ftype=1 who 0-49"
   ]
   [
     create-Cons
     create-AcSig
+    ; print "Ftype=0 who 0-49"
   ]
 
   create-males num_males
@@ -88,6 +90,7 @@ to create-Cons
 end
 
 to go
+  ; print (word "tick=" ticks)
   ask females
   [
     ifelse pregnant = 0                                      ;if females aren't pregnant/lactating they 'invest' in cycleling, if they are pregnant/lactating
@@ -220,6 +223,7 @@ to aggress-to-rivals
           ask one-of females in-radius competitor_radius with [(ovulating = 1) and (Ftype = 1)]
           [
             set aggress_damage (aggress_damage + costO_aggress)
+            ; print who  ;female who is getting aggressed against prints her who number
           ]
         ]
       ]
@@ -627,7 +631,7 @@ likelihood_f_aggress
 likelihood_f_aggress
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -642,7 +646,7 @@ prop_f_aggress
 prop_f_aggress
 0
 100
-0.0
+100.0
 1
 1
 NIL
@@ -737,7 +741,7 @@ SWITCH
 150
 f_detectOv?
 f_detectOv?
-1
+0
 1
 -1000
 
@@ -748,7 +752,7 @@ SWITCH
 624
 decrement
 decrement
-1
+0
 1
 -1000
 

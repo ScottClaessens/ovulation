@@ -69,7 +69,7 @@ t.test(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with a small effect size of 0.23.
+When Decrement == FALSE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
@@ -79,7 +79,7 @@ t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with a small effect size of -0.21.
+When Decrement == TRUE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 ## Paternal Investment
 
@@ -111,7 +111,7 @@ t.test(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with a small effect size of 0.21.
+When Decrement == FALSE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
@@ -121,7 +121,7 @@ t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with a negligible effect size of -0.20.
+When Decrement == TRUE, there is no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 # Experiment 2 (Aggression Towards Higher Mate Value Females)
 
@@ -155,7 +155,7 @@ t.test(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is no significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with a negligible effect size of -0.18.
+When Decrement == FALSE, there is no significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
@@ -165,7 +165,7 @@ t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is also no significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with a negligible effect size of -0.19.
+When Decrement == TRUE, there is also no significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 ## Paternal Investment
 
@@ -197,7 +197,7 @@ t.test(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with a negligible effect size of -0.13.
+When Decrement == FALSE, there is no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
@@ -207,7 +207,7 @@ t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is also no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with a negligible effect size of -0.13.
+When Decrement == TRUE, there is also no significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 # Experiment 3 (Aggression Towards Ovulating Females)
 
@@ -241,7 +241,7 @@ t.test(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with a large effect size of -2.72.
+When Decrement == FALSE, there is a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dFalse.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dFalse.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dFalse.Revealers, RS.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
@@ -251,7 +251,7 @@ t.test(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is again a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with a large effect size of -3.25.
+When Decrement == TRUE, there is again a significant difference between the reproductive success of Revealers (Mean = `r round(mean(RS.dTrue.Revealers),2)` children) and Concealers (Mean = `r round(mean(RS.dTrue.Concealers),2)` children), with an effect size of `r round(cohen.d(RS.dTrue.Revealers, RS.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 ## Paternal Investment
 
@@ -283,7 +283,7 @@ t.test(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)
 ```
 
-When Decrement == FALSE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with a large effect size of -2.72.
+When Decrement == FALSE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dFalse.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dFalse.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dFalse.Revealers, PI.dFalse.Concealers, paired = TRUE)$estimate,2)`.
 
 ```{r}
 t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
@@ -293,7 +293,7 @@ t.test(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)
 ```
 
-When Decrement == TRUE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with a large effect size of -3.54.
+When Decrement == TRUE, there is a significant difference between the paternal investment of Revealers (Mean = `r round(mean(PI.dTrue.Revealers),0)` units) and Concealers (Mean = `r round(mean(PI.dTrue.Concealers),0)` units), with an effect size of `r round(cohen.d(PI.dTrue.Revealers, PI.dTrue.Concealers, paired = TRUE)$estimate,2)`.
 
 # Plotting the results of the main experiments
 
