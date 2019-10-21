@@ -628,7 +628,50 @@ d %>%
   ylab("Acts of aggression (count)")
 ```
 
-Agents receive around 1000 acts of aggression on average, with some variation.
+What's the average number across simulations?
+
+```{r echo=F}
+aggress <-  
+  d %>%
+  group_by(run, target) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  pull(n)
+
+mean(aggress)
+```
+
+And the variation?
+
+```{r echo=F}
+sd(aggress)
+```
+
+Agents receive around 941 acts of aggression on average, with standard deviation 312.
+
+As a histogram:
+
+```{r echo=F, warning=F, message=F}
+figS15 <-  
+  d %>%
+  group_by(run, target) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = n)) +
+  geom_histogram() +
+  facet_wrap(.~run) +
+  theme_classic() +
+  theme(legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_blank()) +
+  ylab("Frequency") +
+  xlab("Acts of aggression received")
+
+figS15
+
+ggsave('figures/FigureS15.pdf', width = 150, height = 100, units = 'mm')
+ggsave('figures/FigureS15.png', width = 150, height = 100, units = 'mm')
+```
+
 
 Are agents repeatedly aggressed against? We calculate a "repeated aggression" index, between 0 and 1, which summarises the proportion of aggressive acts in which an agent was aggressed against after having been aggressed in the timestep prior.
 
