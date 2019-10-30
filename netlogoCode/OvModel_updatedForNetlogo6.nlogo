@@ -1185,7 +1185,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1253,7 +1253,7 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="10000"/>
   </experiment>
   <experiment name="Experiment 2 (Aggression Towards Higher Mate Value)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
@@ -1318,7 +1318,7 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="10000"/>
   </experiment>
   <experiment name="Experiment 3 (Aggression Towards Ovulating)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
@@ -1383,9 +1383,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="10000"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 1 (Proportion of Promiscuous Males)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 1 (Proportion of Promiscuous Males)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1445,8 +1445,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 2 (Decay of Aggression Damage)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 2 (Decay of Aggression Damage)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1506,8 +1507,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 3 (Cost of Aggression to Self / Other)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 3 (Cost of Aggression to Self / Other)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1565,8 +1567,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 4 (Initial F Mod)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 4 (Initial F Mod)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1626,8 +1629,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 5 (Search and Competitor Radiuses)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 5 (Search and Competitor Radiuses)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1685,8 +1689,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 6 (Offspring Invest Max)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 6 (Offspring Invest Max)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1746,8 +1751,9 @@ NetLogo 6.1.0
       <value value="30"/>
     </enumeratedValueSet>
     <steppedValueSet variable="offspring_invest_max_amount" first="1000" step="250" last="3000"/>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 7 (Population Size)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 7 (Population Size)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1804,8 +1810,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 8 (M:F Ratio)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 8 (M:F Ratio)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1862,8 +1869,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 9 (Concealer:Revealer Ratio)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 9 (Concealer:Revealer Ratio)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1922,8 +1930,9 @@ NetLogo 6.1.0
     <enumeratedValueSet variable="offspring_invest_max_amount">
       <value value="2000"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
-  <experiment name="Sensitivity Analysis 10 (Lattice Size)" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="Sensitivity Analysis 10 (Lattice Size)" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="10000"/>
@@ -1988,70 +1997,7 @@ NetLogo 6.1.0
     </enumeratedValueSet>
     <steppedValueSet variable="world-width" first="11" step="10" last="51"/>
     <steppedValueSet variable="world-height" first="11" step="10" last="51"/>
-  </experiment>
-  <experiment name="Sensitivity Analysis 11 (Random Seed)" repetitions="1" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="10000"/>
-    <metric>mean [cum_paternal_i] of females with [Ftype = 0]</metric>
-    <metric>mean [cum_paternal_i] of females with [Ftype = 1]</metric>
-    <metric>mean [offspring_count] of females with [Ftype = 0]</metric>
-    <metric>mean [offspring_count] of females with [Ftype = 1]</metric>
-    <enumeratedValueSet variable="prop_m_promiscuity">
-      <value value="20"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="f_detectOv?">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="sd_female_MV">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="num_males">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="competitor_radius">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="search_radius">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="ad_decay">
-      <value value="0.01"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial_f_mod">
-      <value value="1.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="costO_aggress">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="AcSig_num">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="FertConceal_num">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="decrement">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="prop_f_aggress">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="show-males_on_patch?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="costS_aggress">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="likelihood_f_aggress">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="preg_likelihood">
-      <value value="30"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="offspring_invest_max_amount">
-      <value value="2000"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="random-seed" first="1" step="1" last="50"/>
+    <steppedValueSet variable="random-seed" first="1" step="1" last="100"/>
   </experiment>
 </experiments>
 @#$#@#$#@

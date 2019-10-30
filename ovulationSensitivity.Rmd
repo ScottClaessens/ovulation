@@ -21,16 +21,46 @@ After conducting our main analyses, we fixed the conditions of the agent-based m
 
 First, we manipulate the proportion of promiscuous males in the population from 0% to 100% in steps of 10%. Load in the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# define data reading function
+readNetlogoOutput <- function(fileLocation, Sens) {
+  # read data file
+  d <- read.csv(fileLocation, header = FALSE, skip = 6)
+  # transform and clean
+  d <- 
+    d %>%
+    gather(key = key, value = value, 2:ncol(d)) %>% 
+    spread(key = names(d)[1], value = "value") %>%
+    transmute(Run       = as.numeric(`[run number]`),
+              Sens      = as.numeric((!!sym(Sens))),
+              Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+              key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+              value     = as.numeric(V1)) %>%
+    arrange(Run, Strategy) %>%
+    fill(Sens) %>%
+    spread(key, value)
+  # return clean data
+  return(d)
+}
+
+# clean data
+d <- readNetlogoOutput("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 1 (Proportion of Promiscuous Males)-spreadsheet.csv",
+                       Sens = "prop_m_promiscuity")
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity_MalePromiscuity.csv", d, row.names = FALSE)
+```
+
 ```{r}
-d <-
-  read.csv('data/ovulationSensitivity_MalePromiscuity.csv') %>%
+d <- 
+  read.csv('data/v6/cleanData/ovulationSensitivity_MalePromiscuity.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-There are 440 rows (11 parameters x 20 runs x 2 female strategies).
+There are 2200 rows (11 parameters x 100 runs x 2 female strategies).
 
 ## 1.1. Analyses
 
@@ -41,6 +71,7 @@ m1.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m1.1)
 ```
+
 ```{r}
 model.tables(m1.1, "means")
 ```
@@ -54,6 +85,7 @@ m1.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m1.2)
 ```
+
 ```{r}
 model.tables(m1.2, "means")
 ```
@@ -122,22 +154,34 @@ ggsave('figures/Figure2.pdf', width = 250, height = 100, units = 'mm')
 ggsave('figures/Figure2.png', width = 250, height = 100, units = 'mm')
 
 p1
+
+# cleanup
+rm(p1.1, p1.2, PI_Summary, RS_Summary)
 ```
 
 # 2. Decay of aggression damage
 
 Next, we manipulate the decay of aggression damage from 0 (damage is never healed) to 1 (damage heals immediately) in steps of 0.1. Load in the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# clean data
+d <- readNetlogoOutput("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 2 (Decay of Aggression Damage)-spreadsheet.csv",
+                       Sens = "ad_decay")
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity_AdDecay.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity_AdDecay.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity_AdDecay.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-There are 440 rows (11 parameters x 20 runs x 2 female strategies).
+There are 2200 rows (11 parameters x 100 runs x 2 female strategies).
 
 ## 2.1. Analyses
 
@@ -148,6 +192,7 @@ m2.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m2.1)
 ```
+
 ```{r}
 model.tables(m2.1, "means")
 ```
@@ -161,6 +206,7 @@ m2.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m2.2)
 ```
+
 ```{r}
 model.tables(m2.2, "means")
 ```
@@ -228,15 +274,44 @@ ggsave('figures/FigureS2.pdf', width = 250, height = 100, units = 'mm')
 ggsave('figures/FigureS2.png', width = 250, height = 100, units = 'mm')
 
 p2
+
+# cleanup
+rm(p2.1, p2.2, PI_Summary, RS_Summary)
 ```
 
 # 3. Cost of aggression to self and other
 
 Next, we systematically vary both (a) the cost of aggression to the perpertrator, and (b) the cost of aggression to the victim. We vary both of these from 0 to 2 in increments of 0.5. Load the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv('data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 3 (Cost of Aggression to Self   Other)-spreadsheet.csv', header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            costO     = as.numeric(costO_aggress),
+            costS     = as.numeric(costS_aggress),
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, 
+                                            fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, 
+                                            fixed = TRUE), "PI", "RS")),
+            value     = as.numeric(V1)) %>%
+  arrange(Run, Strategy) %>%
+  fill(costO, costS) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity_costOcostS.csv", 
+          d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity_costOcostS.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity_costOcostS.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          costO    = factor(costO),
@@ -244,7 +319,7 @@ d <-
          Strategy = factor(Strategy))
 ```
 
-This dataset has 1000 rows (5 costs-to-self x 5 costs-to-other x 20 runs x 2 female strategies).
+This dataset has 5000 rows (5 costs-to-self x 5 costs-to-other x 100 runs x 2 female strategies).
 
 ## 3.1. Analyses
 
@@ -255,7 +330,6 @@ m3.1 <- aov(RS ~ costO*costS*Strategy + Error(Run/Strategy), data = d)
 
 summary(m3.1)
 ```
-
 
 This three-way interaction is difficult to interpret, but it seems that the effect of condition depends on both the cost of aggression to self AND the cost of aggression to victims. Rather than look at tables of means, we will visualise this effect. But first, let's see if this result holds for paternal investment.
 
@@ -269,16 +343,16 @@ The same pattern emerges, with the three-way interaction reaching significance.
 
 ## 3.2. Visualisation
 
-Together, the cost of aggression to self AND other influence the difference between the strategies. To visualise this, we will load a pre-calculated dataset that contains the differences between strategies (in either reproductive success differences, or unit differences, depending on the outcome). We will now create two heatmaps that summarise how the cost of aggression affects the effect of strategy.
+Together, the cost of aggression to self AND other influence the difference between the strategies. To visualise this, we will calculate differences between strategies (in either reproductive success differences, or unit differences, depending on the outcome). We will now create two heatmaps that summarise how the cost of aggression affects the effect of strategy.
 
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity_costOcostSdiffs.csv') %>%
-  as_tibble() %>%
-  mutate(Run      = factor(Run),
-         costO    = factor(costO),
-         costS    = factor(costS),
-         Strategy = factor(Strategy))
+  d %>%
+  pivot_wider(id_cols     = c("Run", "costO", "costS"),
+              names_from  = Strategy,
+              values_from = c("RS", "PI")) %>%
+  mutate(DiffRS = RS_Concealers - RS_Revealers,
+         DiffPI = PI_Concealers - PI_Revealers)
 ```
 
 We use `geom_tile` to create our heatmaps. See source code for details.
@@ -296,7 +370,8 @@ p3.1 <-
                        midpoint = 0, guide = "colourbar") +
   labs(x = "Cost to other",
        y = "Cost to self",
-       fill = "RS Difference")
+       fill = "RS Difference") +
+  theme_classic()
 
 DiffPI_Summary <- 
   d %>%
@@ -310,7 +385,8 @@ p3.2 <-
                        midpoint = 0, guide = "colourbar") +
   labs(x = "Cost to other",
        y = "Cost to self",
-       fill = "PI Difference")
+       fill = "PI Difference") +
+  theme_classic()
 
 p3 <- plot_grid(p3.1, p3.2, labels = c('a', 'b'), ncol = 1, align = 'v')
 
@@ -318,6 +394,9 @@ ggsave('figures/FigureS3.pdf', width = 150, height = 200, units = 'mm')
 ggsave('figures/FigureS3.png', width = 150, height = 200, units = 'mm')
 
 p3
+
+# cleanup
+rm(p3.1, p3.2, DiffPI_Summary, DiffRS_Summary)
 ```
 
 These heatmaps show that the advantage of concealed ovulation only holds when (a) the damage to the victim of aggression is at least 0.5, and (b) the cost to self is less than 1.5. Aggression must be harmful to others, but not too costly for the perpetrator.
@@ -326,16 +405,26 @@ These heatmaps show that the advantage of concealed ovulation only holds when (a
 
 Next, we vary the attractiveness multiplier for females during their fertile period. We test values between 0 and 2, in increments of 0.25. Let's load the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# clean data
+d <- readNetlogoOutput("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 4 (Initial F Mod)-spreadsheet.csv",
+                       Sens = "initial_f_mod")
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity_InitialFMod.csv", 
+          d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity_InitialFMod.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity_InitialFMod.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-This dataset contains 360 rows (9 parameters x 20 runs x 2 female strategies).
+This dataset contains 1800 rows (9 parameters x 100 runs x 2 female strategies).
 
 ## 4.1. Analyses
 
@@ -346,6 +435,7 @@ m4.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m4.1)
 ```
+
 ```{r}
 model.tables(m4.1, "means")
 ```
@@ -357,6 +447,7 @@ m4.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m4.2)
 ```
+
 ```{r}
 model.tables(m4.2, "means")
 ```
@@ -423,6 +514,9 @@ ggsave('figures/FigureS4.pdf', width = 250, height = 100, units = 'mm')
 ggsave('figures/FigureS4.png', width = 250, height = 100, units = 'mm')
 
 p4
+
+# cleanup
+rm(p4.1, p4.2, PI_Summary, RS_Summary)
 ```
 
 The attractiveness multiplier seems to have no effect on reproductive success or paternal investment, and does not interact with the main effect of strategy.
@@ -431,9 +525,35 @@ The attractiveness multiplier seems to have no effect on reproductive success or
 
 Finally, we manipulate the radiuses that the female and male agents search in: both when searching for rivals to aggress against (females), and when searching for mates (males).
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv('data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 5 (Search and Competitor Radiuses)-spreadsheet.csv', header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            competitor_radius = as.numeric(competitor_radius),
+            search_radius = as.numeric(search_radius),
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, 
+                                            fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, 
+                                            fixed = TRUE), "PI", "RS")),
+            value     = as.numeric(V1)) %>%
+  arrange(Run, Strategy) %>%
+  fill(competitor_radius, search_radius) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity_Search.csv", 
+          d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity_Search.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity_Search.csv') %>%
   as_tibble() %>%
   mutate(Run               = factor(Run),
          competitor_radius = factor(competitor_radius),
@@ -526,6 +646,9 @@ ggsave('figures/FigureS5.pdf', width = 200, height = 170, units = 'mm')
 ggsave('figures/FigureS5.png', width = 200, height = 170, units = 'mm')
 
 p5
+
+# cleanup
+rm(p5.1, p5.2, PI_Summary, RS_Summary, facet_labels)
 ```
 
 # Session Info

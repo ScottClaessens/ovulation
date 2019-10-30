@@ -21,16 +21,39 @@ For further sensitivity analyses, we fixed the conditions of the agent-based mod
 
 First, we manipulate the number of "offspring investment" units required to successfully have a child. Load in the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 6 (Offspring Invest Max)-spreadsheet.csv", 
+              header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            Sens      = as.numeric(offspring_invest_max_amount),
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+            value     = as.numeric(V1)) %>%
+  arrange(Run, Strategy) %>%
+  fill(Sens) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity2_OffspringInvest.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity2_OffspringInvest.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity2_OffspringInvest.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-There are 360 rows (9 parameter values x 20 runs x 2 female strategies).
+There are 1800 rows (9 parameter values x 100 runs x 2 female strategies).
 
 ## 1.1. Analyses
 
@@ -41,6 +64,7 @@ m1.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m1.1)
 ```
+
 ```{r}
 model.tables(m1.1, "means")
 ```
@@ -54,6 +78,7 @@ m1.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m1.2)
 ```
+
 ```{r}
 model.tables(m1.2, "means")
 ```
@@ -118,8 +143,8 @@ p1.2 <-
 p1 <- plot_grid(p1.1, NULL, p1.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
                 rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS8.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS8.png', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS6.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS6.png', width = 250, height = 100, units = 'mm')
 
 p1
 
@@ -131,16 +156,40 @@ rm(p1.1, p1.2, PI_Summary, RS_Summary)
 
 Next, we manipulate the population size. There are always 50% females and 50% males. Also, the females are always 50% Concealers and 50% Revealers. So a population size of 100 would have 50 males, 25 Concealer females, and 25 Revealer females. Load in the data.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 7 (Population Size)-spreadsheet.csv", 
+              header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  filter(`[steps]` == "10000") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            Sens      = as.numeric(AcSig_num) + as.numeric(FertConceal_num) + as.numeric(num_males),
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+            value     = as.numeric(V1)) %>%
+  arrange(Run, Strategy) %>%
+  fill(Sens) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity2_OffspringInvest.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity2_PopSize.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity2_OffspringInvest.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-There are 240 rows (6 population sizes x 20 runs x 2 female strategies).
+There are 1200 rows (6 population sizes x 100 runs x 2 female strategies).
 
 ## 2.1. Analyses
 
@@ -151,6 +200,7 @@ m2.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m2.1)
 ```
+
 ```{r}
 model.tables(m2.1, "means")
 ```
@@ -164,11 +214,10 @@ m2.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m2.2)
 ```
+
 ```{r}
 model.tables(m2.2, "means")
 ```
-
-However, paternal investment does not change with population size. Nevertheless, a main effect of Strategy remains, suggesting that Concealers have more paternal investment than Revealers.
 
 ## 2.2. Visualisation
 
@@ -228,8 +277,8 @@ p2.2 <-
 p2 <- plot_grid(p2.1, NULL, p2.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
                 rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS9.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS9.png', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS7.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS7.png', width = 250, height = 100, units = 'mm')
 
 p2
 
@@ -241,16 +290,41 @@ rm(p2.1, p2.2, PI_Summary, RS_Summary)
 
 Next, we manipulate the proportion of females in the population.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 8 (M:F Ratio)-spreadsheet.csv", 
+              header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  filter(`[steps]` == "10000") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            Sens      = (as.numeric(FertConceal_num) + as.numeric(AcSig_num)) / 
+              (as.numeric(AcSig_num) + as.numeric(FertConceal_num) + as.numeric(num_males)), # proportion
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+            value     = ifelse(V1 == "<RuntimePrimitiveException>", 0, as.numeric(V1))) %>%
+  arrange(Run, Strategy) %>%
+  fill(Sens) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity2_MFRatio.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity2_MFRatio.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity2_MFRatio.csv') %>%
   as_tibble() %>%
   mutate(Run      = factor(Run),
          Sens     = factor(Sens),
          Strategy = factor(Strategy))
 ```
 
-There are 200 rows (5 MF ratios x 20 runs x 2 female strategies).
+There are 1000 rows (5 MF ratios x 100 runs x 2 female strategies).
 
 ## 3.1. Analyses
 
@@ -261,6 +335,7 @@ m3.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m3.1)
 ```
+
 ```{r}
 model.tables(m3.1, "means")
 ```
@@ -274,6 +349,7 @@ m3.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m3.2)
 ```
+
 ```{r}
 model.tables(m3.2, "means")
 ```
@@ -338,8 +414,8 @@ p3.2 <-
 p3 <- plot_grid(p3.1, NULL, p3.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
                 rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS10.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS10.png', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS8.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS8.png', width = 250, height = 100, units = 'mm')
 
 p3
 
@@ -351,16 +427,40 @@ rm(p3.1, p3.2, PI_Summary, RS_Summary)
 
 Next, we manipulate the proportion of Concealers among females.
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 9 (Concealer:Revealer Ratio)-spreadsheet.csv", 
+              header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  filter(`[steps]` == "10000") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            Sens      = as.numeric(FertConceal_num) / (as.numeric(AcSig_num) + as.numeric(FertConceal_num)), # proportion
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+            value     = ifelse(V1 == "<RuntimePrimitiveException>", 0, as.numeric(V1))) %>%
+  arrange(Run, Strategy) %>%
+  fill(Sens) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity2_ConcRevRatio.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity2_ConcRevRatio.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity2_ConcRevRatio.csv') %>%
   as_tibble() %>%
   mutate(Run       = factor(Run),
-         Sens      = factor(prop_conceal),
+         Sens      = factor(Sens),
          Strategy  = factor(Strategy))
 ```
 
-There are 240 rows (7 ratios x 20 runs x 2 female strategies).
+There are 1200 rows (7 ratios x 100 runs x 2 female strategies).
 
 ## 4.1. Analyses
 
@@ -371,6 +471,7 @@ m4.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m4.1)
 ```
+
 ```{r}
 model.tables(m4.1, "means")
 ```
@@ -384,6 +485,7 @@ m4.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m4.2)
 ```
+
 ```{r}
 model.tables(m4.2, "means")
 ```
@@ -448,8 +550,8 @@ p4.2 <-
 p4 <- plot_grid(p4.1, NULL, p4.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
                 rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS11.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS11.png', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS9.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS9.png', width = 250, height = 100, units = 'mm')
 
 p4
 
@@ -461,16 +563,40 @@ rm(p4.1, p4.2, PI_Summary, RS_Summary)
 
 Next, we manipulate the size of the world. It's always a square (height == width).
 
+```{r echo=F, eval=F, warning=F, message=F}
+# read data file
+d <- read.csv("data/v6/rawData/OvModel_updatedForNetlogo6 Sensitivity Analysis 10 (Lattice Size)-spreadsheet.csv", 
+              header = FALSE, skip = 6)
+
+# transform and clean
+d <- 
+  d %>%
+  gather(key = key, value = value, 2:ncol(d)) %>% 
+  spread(key = names(d)[1], value = "value") %>%
+  filter(`[steps]` == "10000") %>%
+  transmute(Run       = as.numeric(`[run number]`),
+            Sens      = as.numeric(`world-width`),
+            Strategy  = factor(ifelse(grepl("1", `[initial & final values]`, fixed = TRUE), "Revealers", "Concealers")),
+            key       = factor(ifelse(grepl("[cum_paternal_i]", `[initial & final values]`, fixed = TRUE), "PI", "RS")),
+            value     = ifelse(V1 == "<RuntimePrimitiveException>", 0, as.numeric(V1))) %>%
+  arrange(Run, Strategy) %>%
+  fill(Sens) %>%
+  spread(key, value)
+
+# save clean file
+write.csv(file = "data/v6/cleanData/ovulationSensitivity2_LatticeSize.csv", d, row.names = FALSE)
+```
+
 ```{r}
 d <-
-  read.csv('data/ovulationSensitivity2_LatticeSize.csv') %>%
+  read.csv('data/v6/cleanData/ovulationSensitivity2_LatticeSize.csv') %>%
   as_tibble() %>%
   mutate(Run       = factor(Run),
          Sens      = factor(Sens),
          Strategy  = factor(Strategy))
 ```
 
-There are 200 rows (5 lattice sizes x 20 runs x 2 female strategies).
+There are 1000 rows (5 lattice sizes x 100 runs x 2 female strategies).
 
 ## 5.1. Analyses
 
@@ -481,13 +607,12 @@ m5.1 <- aov(RS ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m5.1)
 ```
+
 ```{r}
 model.tables(m5.1, "means")
 ```
 
-There's a main effect of world size. Presumably, this is because with larger worlds, agents have to spend more time and energy searching for mates. 
-
-The main effect of Strategy and interaction effect indicate that Concealers have more children than Revealers.
+There's a main effect of world size. Presumably, this is because with larger worlds, agents have to spend more time and energy searching for mates. The main effect of Strategy and interaction effect indicate that Concealers have more children than Revealers.
 
 Let's run the same model with paternal investment as the dependent variable.
 
@@ -496,6 +621,7 @@ m5.2 <- aov(PI ~ Sens*Strategy + Error(Run/Strategy), data = d)
 
 summary(m5.2)
 ```
+
 ```{r}
 model.tables(m5.2, "means")
 ```
@@ -560,8 +686,8 @@ p5.2 <-
 p5 <- plot_grid(p5.1, NULL, p5.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
                 rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS12.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS12.png', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS10.pdf', width = 250, height = 100, units = 'mm')
+ggsave('figures/FigureS10.png', width = 250, height = 100, units = 'mm')
 
 p5
 
@@ -575,14 +701,14 @@ Finally, we observe the targets of aggression in Experiment 3. This isn't a sens
 
 ```{r}
 d <-
-  read.csv('data/ovulationAggressTargets.csv') %>%
+  read.csv('data/v6/cleanData/ovulationAggressTargets.csv') %>%
   as_tibble() %>%
   mutate(run       = factor(run),
          target    = factor(target),
          strategy  = factor(strategy))
 ```
 
-There are 941,075 acts of aggression across all model runs.
+There are 941,075 acts of aggression across all 20 model runs.
 
 Let's see how many acts of aggression there are across model runs. Here, each point is a model run, and the y-axis measures total number of aggression acts.
 
@@ -652,7 +778,7 @@ Agents receive around 941 acts of aggression on average, with standard deviation
 As a histogram:
 
 ```{r echo=F, warning=F, message=F}
-figS15 <-  
+p6 <-  
   d %>%
   group_by(run, target) %>%
   summarise(n = n()) %>%
@@ -666,30 +792,11 @@ figS15 <-
   ylab("Frequency") +
   xlab("Acts of aggression received")
 
-figS15
+p6
 
-ggsave('figures/FigureS15.pdf', width = 150, height = 100, units = 'mm')
-ggsave('figures/FigureS15.png', width = 150, height = 100, units = 'mm')
+ggsave('figures/FigureS11.pdf', width = 150, height = 100, units = 'mm')
+ggsave('figures/FigureS11.png', width = 150, height = 100, units = 'mm')
 ```
-
-
-Are agents repeatedly aggressed against? We calculate a "repeated aggression" index, between 0 and 1, which summarises the proportion of aggressive acts in which an agent was aggressed against after having been aggressed in the timestep prior.
-
-```{r echo=F}
-d %>% 
-  group_by(run, target, tick) %>%
-  summarise(n = n()) %>% ungroup() %>%
-  mutate(repeated = ifelse(diff(c(0, tick)) == 1, 1, 0)) %>%
-  group_by(run, target) %>%
-  summarise(repeated = sum(repeated) / n()) %>%
-  ggplot(aes(x = run, y = repeated)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(alpha = 0.2, width = 0.1) +
-  theme_classic() +
-  ylab("Repeated aggression (proportion of aggressive acts)")
-```
-
-Roughly 77% of aggressive acts are perpetrated in consecutive timesteps.
 
 # Session Info
 

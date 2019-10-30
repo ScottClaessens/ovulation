@@ -1,5 +1,5 @@
 ---
-title: "The Female Aggression Avoidance Hypothesis - Exploratory Analyses"
+title: "The female rivalry hypothesis - Exploratory Analyses"
 author: Scott Claessens
 date: "`r format(Sys.Date())`"
 output:
@@ -14,7 +14,7 @@ output:
 library(tidyverse)
 ```
 
-We run exploratory analyses on the mating behaviour of agents. The data in the main and sensitivity analyses only capture reproductive success and paternal investment after the whole model run. They do not capture mating behaviour (number of mates, number of unique mates, and amount of mate switching). To remedy this, we ran further models and collected data on the following variables, for each agent: 
+We run exploratory analyses on the mating behaviour of agents. The data in the main and sensitivity analyses only capture reproductive success and paternal investment after the whole model run. They do not capture mating behaviour (number of mates, number of unique mates, and amount of mate switching). To remedy this, we ran models on Netlogo v4 and collected data on the following variables, for each agent: 
 
 * **Number of mates**: total number of mating instances (including repeat matings)
 * **Number of unique mates**: number of unique mates, out of 100 (there are only 100 of the opposite sex)
@@ -30,9 +30,8 @@ Load the data from the one proof-of-concept simulation. We start by looking at t
 
 ```{r}
 d <-
-  read.csv('data/ovulationExploratory_ProofConcealers.csv') %>%
+  read.csv('data/v4/ovulationExploratory_ProofConcealers.csv') %>%
   as_tibble() %>%
-  rename(ID  = `ï..ID`) %>%
   mutate(ID  = factor(ID),
          Sex = factor(Sex))
 
@@ -124,7 +123,7 @@ The same effects hold when females are all Revealers (code in .Rmd file, but not
 
 # load data
 d <-
-  read.csv('data/ovulationExploratory_ProofRevealers.csv') %>%
+  read.csv('data/v4/ovulationExploratory_ProofRevealers.csv') %>%
   as_tibble() %>%
   rename(ID  = `ï..ID`) %>%
   mutate(ID  = factor(ID),
@@ -183,7 +182,7 @@ Load the data for the more comprehensive exploratory analysis.
 
 ```{r}
 d <-
-  read.csv('data/ovulationExploratory_Mating.csv') %>%
+  read.csv('data/v4/ovulationExploratory_Mating.csv') %>%
   as_tibble() %>%
   mutate(ftype      = factor(ifelse(ftype == 0, "Concealers", "Revealers")),
          Experiment = factor(Experiment),
