@@ -1,11 +1,11 @@
 library(tidyverse)
 
 # load
-d <- read.csv("netlogoCode/results.csv", 
+d <- read.csv("exp2aggress.csv", 
               header = FALSE, stringsAsFactors = FALSE)
 
 # remove first two rows
-d <- as.data.frame(d[-c(1:2),])
+d <- as.data.frame(d[-c(1),])
 colnames(d)[1] <- "V1"
 
 # add tick column

@@ -697,11 +697,143 @@ rm(p5.1, p5.2, PI_Summary, RS_Summary)
 
 # 6. Aggression
 
-Finally, we observe the targets of aggression in Experiment 3. This isn't a sensitivity analysis as such, just a check to see patterns of aggression over time within the model.
+Finally, we observe the targets of aggression. This isn't a sensitivity analysis as such, just a check to see patterns of aggression over time within the model.
+
+## 6.1. Experiment 2 conditions
+
+We first look at aggression under conditions of Experiment 2 (aggression towards more attractive rivals).
 
 ```{r}
 d <-
-  read.csv('data/v6/cleanData/ovulationAggressTargets.csv') %>%
+  read.csv('data/v6/cleanData/ovulationAggressTargets_Exp2.csv') %>%
+  as_tibble() %>%
+  mutate(run       = factor(run),
+         target    = factor(target),
+         strategy  = factor(strategy))
+```
+
+There are 602,439 acts of aggression across all 20 model runs.
+
+Let's see how many acts of aggression there are across model runs. Here, each point is a model run, and the y-axis measures total number of aggression acts.
+
+```{r echo=F}
+d %>%
+  group_by(run) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(y = n, x = "")) +
+  geom_boxplot() +
+  geom_jitter(width = 0.1) +
+  theme_classic() +
+  theme(axis.title.x = element_blank(),
+        axis.ticks = element_blank()) +
+  ylab("Total acts of aggression (count)")
+```
+
+There's some variation, but there are around 30,000 acts of aggression per model (on average).
+
+What about over time?
+
+```{r echo=F}
+d %>%
+  group_by(run, tick) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = tick, y = n, group = run)) +
+  geom_line(stat = "summary_bin", binwidth = 100, fun.y = mean) +
+  theme_classic() +
+  ylab("Acts of aggression (count)")
+```
+
+There are many acts of aggression at the beginning, likely because there is a larger spread of females across the lattice. But when females become pregnant and stay still, the amount of aggression plateaus.
+
+Is there variation in the aggression each individual receives? Each individual is a point in the following plot, split by each independent model run and by the individual's strategy.
+
+```{r echo=F}
+d %>%
+  group_by(run, target, strategy) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = strategy, y = n, colour = strategy)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.2, width = 0.1) +
+  facet_wrap(.~run) +
+  theme_classic() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  ylab("Acts of aggression (count)")
+```
+
+There do not seem to be consistent differences in amount of aggression between strategies, nor across different model runs.
+
+What's the average number across simulations for Concealers?
+
+```{r echo=F}
+aggress_Concealer <-  
+  d %>%
+  group_by(run, target, strategy) %>%
+  summarise(n = n()) %>%
+  filter(strategy == "Concealers") %>%
+  ungroup() %>%
+  pull(n)
+
+mean(aggress_Concealer)
+```
+
+And the variation?
+
+```{r echo=F}
+sd(aggress_Concealer)
+```
+
+Agents receive around 297 acts of aggression on average, with standard deviation 128.
+
+And for Revealers?
+
+```{r echo=F}
+aggress_Revealer <-  
+  d %>%
+  group_by(run, target, strategy) %>%
+  summarise(n = n()) %>%
+  filter(strategy == "Revealers") %>%
+  ungroup() %>%
+  pull(n)
+
+mean(aggress_Revealer)
+```
+
+```{r echo=F}
+sd(aggress_Revealer)
+```
+
+The amount of aggression does not vary across strategies.
+
+Save histogram to file.
+
+```{r echo=F, warning=F, message=F}
+p6 <-  
+  d %>%
+  group_by(run, target, strategy) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(x = n, group = strategy, fill = strategy)) +
+  geom_histogram(alpha = 0.5, position = "identity") +
+  facet_wrap(.~run) +
+  theme_classic() +
+  theme(strip.background = element_blank(),
+        strip.text = element_blank()) +
+  ylab("Frequency") +
+  xlab("Acts of aggression received")
+
+p6
+
+ggsave('figures/FigureS11.pdf', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureS11.png', width = 200, height = 100, units = 'mm')
+```
+
+## 6.2. Experiment 3 conditions
+
+We next look at aggression under conditions of Experiment 3 (aggression towards ovulating rivals).
+
+```{r}
+d <-
+  read.csv('data/v6/cleanData/ovulationAggressTargets_Exp3.csv') %>%
   as_tibble() %>%
   mutate(run       = factor(run),
          target    = factor(target),
@@ -725,7 +857,7 @@ d %>%
   ylab("Total acts of aggression (count)")
 ```
 
-There's some variation in the amount of aggression instantiated across different model runs, but on the whole there are around 47,500 agression acts per simulation. 
+There's some variation in the amount of aggression instantiated across different model runs, but on the whole there are around 47,500 agression acts per simulation. It seems that there's more aggression in Experiment 3 compared to Experiment 2.
 
 What about over time?
 
@@ -739,7 +871,7 @@ d %>%
   ylab("Acts of aggression (count)")
 ```
 
-There are many acts of aggression at the beginning, likely because there is a larger spread of females across the lattice. But when females become pregnant and stay still, the amount of aggression plateaus.
+We find the same effect as in Experiment 2.
 
 Is there variation in the amount of aggression each agent receives? Here, each point is an individual agent within a simulation.
 
@@ -778,24 +910,23 @@ Agents receive around 941 acts of aggression on average, with standard deviation
 As a histogram:
 
 ```{r echo=F, warning=F, message=F}
-p6 <-  
+p7 <-  
   d %>%
-  group_by(run, target) %>%
+  group_by(run, target, strategy) %>%
   summarise(n = n()) %>%
-  ggplot(aes(x = n)) +
+  ggplot(aes(x = n, group = strategy, fill = strategy)) +
   geom_histogram() +
   facet_wrap(.~run) +
   theme_classic() +
-  theme(legend.position = "none",
-        strip.background = element_blank(),
+  theme(strip.background = element_blank(),
         strip.text = element_blank()) +
   ylab("Frequency") +
   xlab("Acts of aggression received")
 
-p6
+p7
 
-ggsave('figures/FigureS11.pdf', width = 150, height = 100, units = 'mm')
-ggsave('figures/FigureS11.png', width = 150, height = 100, units = 'mm')
+ggsave('figures/FigureS12.pdf', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureS12.png', width = 200, height = 100, units = 'mm')
 ```
 
 # Session Info
