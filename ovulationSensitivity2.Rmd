@@ -751,13 +751,15 @@ Is there variation in the aggression each individual receives? Each individual i
 d %>%
   group_by(run, target, strategy) %>%
   summarise(n = n()) %>%
-  ggplot(aes(x = strategy, y = n, colour = strategy)) +
+  ggplot(aes(x = fct_rev(strategy), y = n, colour = strategy)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter(alpha = 0.2, width = 0.1) +
   facet_wrap(.~run) +
+  scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank()) +
+  xlab("Strategy") +
   ylab("Acts of aggression (count)")
 ```
 
@@ -812,11 +814,13 @@ p6 <-
   d %>%
   group_by(run, target, strategy) %>%
   summarise(n = n()) %>%
-  ggplot(aes(x = n, group = strategy, fill = strategy)) +
+  ggplot(aes(x = n, group = fct_rev(strategy), fill = fct_rev(strategy))) +
   geom_histogram(alpha = 0.5, position = "identity") +
   facet_wrap(.~run) +
+  scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
   theme_classic() +
-  theme(strip.background = element_blank(),
+  theme(legend.title = element_blank(),
+        strip.background = element_blank(),
         strip.text = element_blank()) +
   ylab("Frequency") +
   xlab("Acts of aggression received")
@@ -917,8 +921,10 @@ p7 <-
   ggplot(aes(x = n, group = strategy, fill = strategy)) +
   geom_histogram() +
   facet_wrap(.~run) +
+  scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
   theme_classic() +
-  theme(strip.background = element_blank(),
+  theme(legend.title = element_blank(),
+        strip.background = element_blank(),
         strip.text = element_blank()) +
   ylab("Frequency") +
   xlab("Acts of aggression received")
