@@ -13,6 +13,8 @@ output:
 ```{r warning=F, message=F}
 library(tidyverse)
 library(cowplot)
+library(lme4)
+library(lmerTest)
 ```
 
 For further sensitivity analyses, we fixed the conditions of the agent-based model to those in Experiment 3, and manipulated one parameter at a time to see how sensitive our main result was to model variations.
@@ -737,6 +739,9 @@ What about over time?
 d %>%
   group_by(run, tick) %>%
   summarise(n = n()) %>%
+  ungroup() %>%
+  complete(run, tick) %>%
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
   ggplot(aes(x = tick, y = n, group = run)) +
   geom_line(stat = "summary_bin", binwidth = 100, fun.y = mean) +
   theme_classic() +
@@ -748,9 +753,16 @@ There are many acts of aggression at the beginning, likely because there is a la
 Is there variation in the aggression each individual receives? Each individual is a point in the following plot, split by each independent model run and by the individual's strategy.
 
 ```{r echo=F}
-d %>%
+d_summarise <-
+  d %>%
   group_by(run, target, strategy) %>%
   summarise(n = n()) %>%
+  ungroup() %>%
+  complete(run, target) %>%
+  fill(strategy) %>%
+  mutate(n = ifelse(is.na(n), 0, n))
+
+d_summarise  %>%
   ggplot(aes(x = fct_rev(strategy), y = n, colour = strategy)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter(alpha = 0.2, width = 0.1) +
@@ -763,17 +775,12 @@ d %>%
   ylab("Acts of aggression (count)")
 ```
 
-There do not seem to be consistent differences in amount of aggression between strategies, nor across different model runs.
-
 What's the average number across simulations for Concealers?
 
 ```{r echo=F}
 aggress_Concealer <-  
-  d %>%
-  group_by(run, target, strategy) %>%
-  summarise(n = n()) %>%
+  d_summarise %>%
   filter(strategy == "Concealers") %>%
-  ungroup() %>%
   pull(n)
 
 mean(aggress_Concealer)
@@ -785,17 +792,14 @@ And the variation?
 sd(aggress_Concealer)
 ```
 
-Agents receive around 297 acts of aggression on average, with standard deviation 128.
+Agents receive around 294 acts of aggression on average, with standard deviation 130.
 
 And for Revealers?
 
 ```{r echo=F}
 aggress_Revealer <-  
-  d %>%
-  group_by(run, target, strategy) %>%
-  summarise(n = n()) %>%
+  d_summarise %>%
   filter(strategy == "Revealers") %>%
-  ungroup() %>%
   pull(n)
 
 mean(aggress_Revealer)
@@ -805,15 +809,19 @@ mean(aggress_Revealer)
 sd(aggress_Revealer)
 ```
 
-The amount of aggression does not vary across strategies.
+Does the amount of aggression vary across strategies?
+
+```{r}
+summary(lmer(n ~ 1 + strategy + (1 | run), data = d_summarise))
+```
+
+Yes. Revealers receive 14 acts of aggression more (on average) than Concealers.
 
 Save histogram to file.
 
 ```{r echo=F, warning=F, message=F}
 p6 <-  
-  d %>%
-  group_by(run, target, strategy) %>%
-  summarise(n = n()) %>%
+  d_summarise %>%
   ggplot(aes(x = n, group = fct_rev(strategy), fill = fct_rev(strategy))) +
   geom_histogram(alpha = 0.5, position = "identity") +
   facet_wrap(.~run) +
@@ -869,6 +877,9 @@ What about over time?
 d %>%
   group_by(run, tick) %>%
   summarise(n = n()) %>%
+  ungroup() %>%
+  complete(run, tick) %>%
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
   ggplot(aes(x = tick, y = n, group = run)) +
   geom_line(stat = "summary_bin", binwidth = 100, fun.y = mean) +
   theme_classic() +
@@ -880,9 +891,12 @@ We find the same effect as in Experiment 2.
 Is there variation in the amount of aggression each agent receives? Here, each point is an individual agent within a simulation.
 
 ```{r echo=F}
-d %>%
-  group_by(run, target) %>%
-  summarise(n = n()) %>%
+d_summarise <-
+  d %>%
+  group_by(run, target, strategy) %>%
+  summarise(n = n())
+  
+d_summarise %>%
   ggplot(aes(x = run, y = n)) +
   geom_boxplot(outlier.shape = NA) +
   geom_jitter(alpha = 0.2, width = 0.1) +
@@ -893,20 +907,13 @@ d %>%
 What's the average number across simulations?
 
 ```{r echo=F}
-aggress <-  
-  d %>%
-  group_by(run, target) %>%
-  summarise(n = n()) %>%
-  ungroup() %>%
-  pull(n)
-
-mean(aggress)
+mean(d_summarise$n)
 ```
 
 And the variation?
 
 ```{r echo=F}
-sd(aggress)
+sd(d_summarise$n)
 ```
 
 Agents receive around 941 acts of aggression on average, with standard deviation 312.
@@ -915,9 +922,7 @@ As a histogram:
 
 ```{r echo=F, warning=F, message=F}
 p7 <-  
-  d %>%
-  group_by(run, target, strategy) %>%
-  summarise(n = n()) %>%
+  d_summarise %>%
   ggplot(aes(x = n, group = strategy, fill = strategy)) +
   geom_histogram() +
   facet_wrap(.~run) +
