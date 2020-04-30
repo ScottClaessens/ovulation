@@ -1,0 +1,111 @@
+---
+title: "The female rivalry hypothesis - Time series plots"
+author: Scott Claessens
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: false
+    toc_float: true
+---
+
+# 0. Setup
+
+Load packages.
+
+```{r warning=F, message=F}
+library(cowplot)
+library(tidyverse)
+```
+
+Load data.
+
+```{r}
+d <- read.csv('data/v6/cleanData/ovulationTimeSteps.csv', header = TRUE)
+```
+
+# 1. Plot time series
+
+Plot a time series of one run with lifetime reproductive success as the outcome.
+
+```{r RS time series, echo=F, fig.width=7, fig.height=7, warning=F, error=F}
+makeTimeSeries <- function(experiment, decrement, DV) {
+  out <-
+    d %>%
+    filter(Experiment == experiment) %>%
+    filter(Decrement == decrement) %>%
+    ggplot(aes(x = Timestep, y = (!!sym(DV)), colour = Strategy)) +
+    geom_line() +
+    labs(subtitle = paste0("Experiment ", experiment,
+                           ", Decrement = ", decrement)) +
+    theme_classic()
+  
+  if (DV == "RS") {
+    out <- 
+      out + 
+      scale_y_continuous(
+        name = "Number of children",
+        breaks = seq(0, 8, by = 2),
+        limits = c(0, 8)
+        )
+  } else {
+    out <- 
+      out + 
+      scale_y_continuous(
+        name = "Paternal investment",
+        breaks = seq(0, 8000, by = 2000),
+        limits = c(0, 8000)
+        )
+  }
+}
+
+l <- get_legend(makeTimeSeries(1, "TRUE" , "RS"))
+pA <- makeTimeSeries(1, "TRUE" , "RS") + theme(legend.position = "none")
+pB <- makeTimeSeries(1, "FALSE", "RS") + theme(legend.position = "none")
+pC <- makeTimeSeries(2, "TRUE" , "RS") + theme(legend.position = "none")
+pD <- makeTimeSeries(2, "FALSE", "RS") + theme(legend.position = "none")
+pE <- makeTimeSeries(3, "TRUE" , "RS") + theme(legend.position = "none")
+pF <- makeTimeSeries(3, "FALSE", "RS") + theme(legend.position = "none")
+
+figS13 <- plot_grid(pA, pB,
+                    pC, pD,
+                    pE, pF,
+                    nrow = 3,
+                    labels = letters[1:6])
+figS13 <- plot_grid(figS13, l, rel_widths = c(1, 0.2))
+ggsave(figS13, file = "figures/FigureS13.pdf", height = 7, width = 7)
+ggsave(figS13, file = "figures/FigureS13.png", height = 7, width = 7)
+
+figS13
+```
+
+And again with paternal investment as the outcome.
+
+```{r PI time series, echo=F, fig.height=7, fig.width=8, warning=F, error=F}
+pA <- makeTimeSeries(1, "TRUE" , "PI") + theme(legend.position = "none")
+pB <- makeTimeSeries(1, "FALSE", "PI") + theme(legend.position = "none")
+pC <- makeTimeSeries(2, "TRUE" , "PI") + theme(legend.position = "none")
+pD <- makeTimeSeries(2, "FALSE", "PI") + theme(legend.position = "none")
+pE <- makeTimeSeries(3, "TRUE" , "PI") + theme(legend.position = "none")
+pF <- makeTimeSeries(3, "FALSE", "PI") + theme(legend.position = "none")
+
+figS14 <- plot_grid(pA, pB,
+                    pC, pD,
+                    pE, pF,
+                    nrow = 3,
+                    labels = letters[1:6])
+figS14 <- plot_grid(figS14, l, rel_widths = c(1, 0.2))
+ggsave(figS14, file = "figures/FigureS14.pdf", height = 7, width = 8)
+ggsave(figS14, file = "figures/FigureS14.png", height = 7, width = 8)
+
+figS14
+```
+
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+

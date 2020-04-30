@@ -389,8 +389,8 @@ p1 <-
   annotate('text', x = 0.851, y = 0.965, 
            label = 'Experiment 3\n(Aggression Towards Ovulating)', size = 2)
   
-ggsave('figures/Figure1.pdf', plot = p1, width = 180, height = 90, units = 'mm')
-ggsave('figures/Figure1.png', plot = p1, width = 180, height = 90, units = 'mm')
+ggsave('figures/Figure2.pdf', plot = p1, width = 180, height = 90, units = 'mm')
+ggsave('figures/Figure2.png', plot = p1, width = 180, height = 90, units = 'mm')
 
 p1
 ```
