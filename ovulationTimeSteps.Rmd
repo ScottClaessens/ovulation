@@ -37,6 +37,7 @@ makeTimeSeries <- function(experiment, decrement, DV) {
     filter(Decrement == decrement) %>%
     ggplot(aes(x = Timestep, y = (!!sym(DV)), colour = Strategy)) +
     geom_line() +
+    scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     labs(subtitle = paste0("Experiment ", experiment,
                            ", Decrement = ", decrement)) +
     theme_classic()
