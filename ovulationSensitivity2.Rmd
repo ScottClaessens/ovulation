@@ -684,7 +684,7 @@ p <- plot_grid(p1.1, NULL, p1.2 + guides(colour = FALSE),
 p <- plot_grid(p, get_legend(p1.2), nrow = 1, rel_widths = c(1, 0.1))
 
 ggsave(p, filename = 'figures/FigureE4.pdf', width = 250, height = 300, units = 'mm')
-ggsave(p, filename = 'figures/FigureE4.png', width = 250, height = 300, units = 'mm')
+ggsave(p, filename = 'figures/FigureE4.jpg', width = 250, height = 300, units = 'mm')
 
 # cleanup
 rm(PI_Summary, RS_Summary)
@@ -829,7 +829,7 @@ p6 <-
 p6
 
 ggsave('figures/FigureE7.pdf', width = 200, height = 100, units = 'mm')
-ggsave('figures/FigureE7.png', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE7.jpg', width = 200, height = 100, units = 'mm')
 ```
 
 ## 6.2. Experiment 3 conditions
@@ -930,7 +930,7 @@ p7 <-
 p7
 
 ggsave('figures/FigureE8.pdf', width = 200, height = 100, units = 'mm')
-ggsave('figures/FigureE8.png', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE8.jpg', width = 200, height = 100, units = 'mm')
 ```
 
 # Session Info

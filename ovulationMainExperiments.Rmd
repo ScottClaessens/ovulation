@@ -391,7 +391,7 @@ p1 <-
            label = 'Experiment 3\n(Aggression Towards Ovulating)', size = 2)
   
 ggsave('figures/Figure2.pdf', plot = p1, width = 180, height = 90, units = 'mm')
-ggsave('figures/Figure2.png', plot = p1, width = 180, height = 90, units = 'mm')
+ggsave('figures/Figure2.jpg', plot = p1, width = 180, height = 90, units = 'mm')
 
 p1
 ```
@@ -452,7 +452,7 @@ p2 <-
            label = 'Experiment 3\n(Aggression Towards Ovulating)', size = 2)
   
 ggsave('figures/FigureE1.pdf', plot = p2, width = 180, height = 90, units = 'mm')
-ggsave('figures/FigureE1.png', plot = p2, width = 180, height = 90, units = 'mm')
+ggsave('figures/FigureE1.jpg', plot = p2, width = 180, height = 90, units = 'mm')
 
 p2
 ```
