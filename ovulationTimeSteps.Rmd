@@ -75,8 +75,6 @@ figS13 <- plot_grid(pA, pB,
                     nrow = 3,
                     labels = letters[1:6])
 figS13 <- plot_grid(figS13, l, rel_widths = c(1, 0.2))
-ggsave(figS13, file = "figures/FigureS13.pdf", height = 7, width = 7)
-ggsave(figS13, file = "figures/FigureS13.png", height = 7, width = 7)
 
 figS13
 ```
@@ -97,8 +95,6 @@ figS14 <- plot_grid(pA, pB,
                     nrow = 3,
                     labels = letters[1:6])
 figS14 <- plot_grid(figS14, l, rel_widths = c(1, 0.2))
-ggsave(figS14, file = "figures/FigureS14.pdf", height = 7, width = 8)
-ggsave(figS14, file = "figures/FigureS14.png", height = 7, width = 8)
 
 figS14
 ```

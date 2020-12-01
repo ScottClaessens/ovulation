@@ -362,6 +362,7 @@ p1 <-
   facet_grid(. ~ Experiment + Decrement) +
   ylab('Lifetime reproductive success\n(number of children)') +
   scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
+  scale_y_continuous(limits = c(0, 8.5)) +
   theme_minimal() +
   theme(axis.title.x = element_blank(),
         axis.text.x  = element_blank(),
@@ -422,6 +423,7 @@ p2 <-
   facet_grid(. ~ Experiment + Decrement) +
   ylab('Paternal investment (units)') +
   scale_fill_manual(values=c("#6691b1", "#ffd3b4")) +
+  scale_y_continuous(limits = c(0, 10000)) +
   theme_minimal() +
   theme(axis.title.x = element_blank(),
         axis.text.x  = element_blank(),
@@ -449,8 +451,8 @@ p2 <-
   annotate('text', x = 0.851, y = 0.965, 
            label = 'Experiment 3\n(Aggression Towards Ovulating)', size = 2)
   
-ggsave('figures/FigureS1.pdf', plot = p2, width = 180, height = 90, units = 'mm')
-ggsave('figures/FigureS1.png', plot = p2, width = 180, height = 90, units = 'mm')
+ggsave('figures/FigureE1.pdf', plot = p2, width = 180, height = 90, units = 'mm')
+ggsave('figures/FigureE1.png', plot = p2, width = 180, height = 90, units = 'mm')
 
 p2
 ```

@@ -112,8 +112,8 @@ p1.1 <-
     geom_line(aes(y = RS_mean), position = position_dodge(width = 1.5), data = RS_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Required offspring investment (units)") +
-    ylab("Reproductive success (number of children)") +
-    ylim(c(0,13)) +
+    ylab("Reproductive success\n(number of children)") +
+    ylim(c(0,12)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank()) +
@@ -135,23 +135,18 @@ p1.2 <-
     geom_line(aes(y = PI_mean), position = position_dodge(width = 1.5), data = PI_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Required offspring investment (units)") +
-    ylab("Paternal investment (units)") +
-    ylim(c(0,10000)) +
+    ylab("Paternal investment\n(units)") +
+    ylim(c(0,16000)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank())
     
 
-p1 <- plot_grid(p1.1, NULL, p1.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
-                rel_widths = c(0.7375, 0.05, 1))
-
-ggsave('figures/FigureS6.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS6.png', width = 250, height = 100, units = 'mm')
-
-p1
+plot_grid(p1.1, NULL, p1.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+          rel_widths = c(0.7375, 0.05, 1))
 
 # cleanup
-rm(p1.1, p1.2, PI_Summary, RS_Summary)
+rm(PI_Summary, RS_Summary)
 ```
 
 # 2. Population size
@@ -246,8 +241,8 @@ p2.1 <-
     geom_line(aes(y = RS_mean), position = position_dodge(width = 1.5), data = RS_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Population size (number of individuals)") +
-    ylab("Reproductive success (number of children)") +
-    ylim(c(0,9)) +
+    ylab("Reproductive success\n(number of children)") +
+    ylim(c(0,12)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank()) +
@@ -269,23 +264,18 @@ p2.2 <-
     geom_line(aes(y = PI_mean), position = position_dodge(width = 1.5), data = PI_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Population size (number of individuals)") +
-    ylab("Paternal investment (units)") +
-    ylim(c(0,10000)) +
+    ylab("Paternal investment\n(units)") +
+    ylim(c(0,16000)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank())
     
 
-p2 <- plot_grid(p2.1, NULL, p2.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
-                rel_widths = c(0.7375, 0.05, 1))
-
-ggsave('figures/FigureS7.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS7.png', width = 250, height = 100, units = 'mm')
-
-p2
+plot_grid(p2.1, NULL, p2.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+          rel_widths = c(0.7375, 0.05, 1))
 
 # cleanup
-rm(p2.1, p2.2, PI_Summary, RS_Summary)
+rm(PI_Summary, RS_Summary)
 ```
 
 # 3. Proportion of females (MF ratio)
@@ -383,8 +373,8 @@ p3.1 <-
     geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Proportion of females in population") +
-    ylab("Reproductive success (number of children)") +
-    ylim(c(0,11)) +
+    ylab("Reproductive success\n(number of children)") +
+    ylim(c(0,12)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank()) +
@@ -406,23 +396,18 @@ p3.2 <-
     geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Proportion of females in population") +
-    ylab("Paternal investment (units)") +
-    ylim(c(0,18000)) +
+    ylab("Paternal investment\n(units)") +
+    ylim(c(0,16000)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank())
     
 
-p3 <- plot_grid(p3.1, NULL, p3.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
-                rel_widths = c(0.7375, 0.05, 1))
-
-ggsave('figures/FigureS8.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS8.png', width = 250, height = 100, units = 'mm')
-
-p3
+plot_grid(p3.1, NULL, p3.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+          rel_widths = c(0.7375, 0.05, 1))
 
 # cleanup
-rm(p3.1, p3.2, PI_Summary, RS_Summary)
+rm(PI_Summary, RS_Summary)
 ```
 
 # 4. Proportion of Concealers (Concealer:Revealer ratio)
@@ -519,8 +504,8 @@ p4.1 <-
     geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Proportion of Concealers (within females)") +
-    ylab("Reproductive success (number of children)") +
-    ylim(c(0,9)) +
+    ylab("Reproductive success\n(number of children)") +
+    ylim(c(0,12)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank()) +
@@ -542,23 +527,18 @@ p4.2 <-
     geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Proportion of Concealers (within females)") +
-    ylab("Paternal investment (units)") +
-    ylim(c(0,10000)) +
+    ylab("Paternal investment\n(units)") +
+    ylim(c(0,16000)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank())
     
 
-p4 <- plot_grid(p4.1, NULL, p4.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
-                rel_widths = c(0.7375, 0.05, 1))
-
-ggsave('figures/FigureS9.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS9.png', width = 250, height = 100, units = 'mm')
-
-p4
+plot_grid(p4.1, NULL, p4.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+          rel_widths = c(0.7375, 0.05, 1))
 
 # cleanup
-rm(p4.1, p4.2, PI_Summary, RS_Summary)
+rm(PI_Summary, RS_Summary)
 ```
 
 # 5. Lattice size
@@ -655,8 +635,8 @@ p5.1 <-
     geom_line(aes(y = RS_mean), position = position_dodge(width = 0.05), data = RS_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Lattice width (and height)") +
-    ylab("Reproductive success (number of children)") +
-    ylim(c(0,9)) +
+    ylab("Reproductive success\n(number of children)") +
+    ylim(c(0,12)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank()) +
@@ -678,23 +658,36 @@ p5.2 <-
     geom_line(aes(y = PI_mean), position = position_dodge(width = 0.05), data = PI_Summary) +
     scale_colour_manual(values=c("#ffd3b4", "#6691b1")) +
     xlab("Lattice width (and height)") +
-    ylab("Paternal investment (units)") +
-    ylim(c(0,10000)) +
+    ylab("Paternal investment\n(units)") +
+    ylim(c(0,16000)) +
     theme_bw() +
     theme(text = element_text(size = 10),
           panel.grid = element_blank())
     
 
-p5 <- plot_grid(p5.1, NULL, p5.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
-                rel_widths = c(0.7375, 0.05, 1))
+plot_grid(p5.1, NULL, p5.2, labels = c('a', '', 'b'), nrow = 1, align = 'h',
+          rel_widths = c(0.7375, 0.05, 1))
 
-ggsave('figures/FigureS10.pdf', width = 250, height = 100, units = 'mm')
-ggsave('figures/FigureS10.png', width = 250, height = 100, units = 'mm')
+p <- plot_grid(p1.1, NULL, p1.2 + guides(colour = FALSE),
+               p2.1, NULL, p2.2 + guides(colour = FALSE),
+               p3.1, NULL, p3.2 + guides(colour = FALSE),
+               p4.1, NULL, p4.2 + guides(colour = FALSE),
+               p5.1, NULL, p5.2 + guides(colour = FALSE),
+               labels = c(
+                 'a', '', 'b',
+                 'c', '', 'd',
+                 'e', '', 'f',
+                 'g', '', 'h',
+                 'i', '', 'j'
+                 ), nrow = 5, align = 'h',
+               rel_widths = c(1, 0.05, 1))
+p <- plot_grid(p, get_legend(p1.2), nrow = 1, rel_widths = c(1, 0.1))
 
-p5
+ggsave(p, filename = 'figures/FigureE4.pdf', width = 250, height = 300, units = 'mm')
+ggsave(p, filename = 'figures/FigureE4.png', width = 250, height = 300, units = 'mm')
 
 # cleanup
-rm(p5.1, p5.2, PI_Summary, RS_Summary)
+rm(PI_Summary, RS_Summary)
 ```
 
 # 6. Aggression
@@ -718,7 +711,7 @@ There are 602,439 acts of aggression across all 20 model runs.
 
 Let's see how many acts of aggression there are across model runs. Here, each point is a model run, and the y-axis measures total number of aggression acts.
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d %>%
   group_by(run) %>%
   summarise(n = n()) %>%
@@ -735,7 +728,7 @@ There's some variation, but there are around 30,000 acts of aggression per model
 
 What about over time?
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d %>%
   group_by(run, tick) %>%
   summarise(n = n()) %>%
@@ -752,7 +745,7 @@ There are many acts of aggression at the beginning, likely because there is a la
 
 Is there variation in the aggression each individual receives? Each individual is a point in the following plot, split by each independent model run and by the individual's strategy.
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d_summarise <-
   d %>%
   group_by(run, target, strategy) %>%
@@ -819,7 +812,7 @@ Yes. Revealers receive 14 acts of aggression more (on average) than Concealers.
 
 Save histogram to file.
 
-```{r echo=F, warning=F, message=F}
+```{r echo=F, warning=F, error=F, message=F}
 p6 <-  
   d_summarise %>%
   ggplot(aes(x = n, group = fct_rev(strategy), fill = fct_rev(strategy))) +
@@ -835,8 +828,8 @@ p6 <-
 
 p6
 
-ggsave('figures/FigureS11.pdf', width = 200, height = 100, units = 'mm')
-ggsave('figures/FigureS11.png', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE7.pdf', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE7.png', width = 200, height = 100, units = 'mm')
 ```
 
 ## 6.2. Experiment 3 conditions
@@ -856,7 +849,7 @@ There are 941,075 acts of aggression across all 20 model runs.
 
 Let's see how many acts of aggression there are across model runs. Here, each point is a model run, and the y-axis measures total number of aggression acts.
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d %>%
   group_by(run) %>%
   summarise(n = n()) %>%
@@ -873,7 +866,7 @@ There's some variation in the amount of aggression instantiated across different
 
 What about over time?
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d %>%
   group_by(run, tick) %>%
   summarise(n = n()) %>%
@@ -890,7 +883,7 @@ We find the same effect as in Experiment 2.
 
 Is there variation in the amount of aggression each agent receives? Here, each point is an individual agent within a simulation.
 
-```{r echo=F}
+```{r echo=F, warning=F, error=F, message=F}
 d_summarise <-
   d %>%
   group_by(run, target, strategy) %>%
@@ -920,7 +913,7 @@ Agents receive around 941 acts of aggression on average, with standard deviation
 
 As a histogram:
 
-```{r echo=F, warning=F, message=F}
+```{r echo=F, warning=F, error=F, message=F}
 p7 <-  
   d_summarise %>%
   ggplot(aes(x = n, group = strategy, fill = strategy)) +
@@ -936,8 +929,8 @@ p7 <-
 
 p7
 
-ggsave('figures/FigureS12.pdf', width = 200, height = 100, units = 'mm')
-ggsave('figures/FigureS12.png', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE8.pdf', width = 200, height = 100, units = 'mm')
+ggsave('figures/FigureE8.png', width = 200, height = 100, units = 'mm')
 ```
 
 # Session Info
